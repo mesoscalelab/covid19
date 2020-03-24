@@ -14,25 +14,25 @@
 var db = [];
 
 // region, population (millions), infected
-db.push(["Uttar Pradesh",               199.81,  31]);
-db.push(["Maharashtra",                 112.37,  74]);
+db.push(["Uttar Pradesh",               199.81,  33]);
+db.push(["Maharashtra",                 112.37,  87]);
 db.push(["Bihar",                       104.01,   2]);
 db.push(["West Bengal",                  91.27,   7]);
-db.push(["Telangana",                    35.20,  32]);
+db.push(["Telangana",                    35.20,  22]);
 db.push(["Andhra Pradesh",               49.70,   7]);
-db.push(["Madhya Pradesh",               72.63,   6]);
-db.push(["Tamil Nadu",                   72.15,   9]);
-db.push(["Rajasthan",                    68.55,  28]);
-db.push(["Karnataka",                    61.09,  33]);
+db.push(["Madhya Pradesh",               72.63,   7]);
+db.push(["Tamil Nadu",                   72.15,  10]);
+db.push(["Rajasthan",                    68.55,  33]);
+db.push(["Karnataka",                    61.09,  37]);
 db.push(["Gujarat",                      60.43,  29]);
 db.push(["Orissa",                       41.97,   2]);
-db.push(["Kerala",                       33.40,  67]);
+db.push(["Kerala",                       33.40,  95]);
 db.push(["Jharkhand",                    32.98,   0]);
 db.push(["Assam",                        31.20,   0]);
 db.push(["Punjab",                       27.75,  21]);
-db.push(["Chhattisgarh",                 25.54,   1]);
+db.push(["Chhattisgarh",                 25.54,   6]);
 db.push(["Haryana",                      25.35,  26]);
-db.push(["Delhi",                        16.78,  29]);
+db.push(["Delhi",                        16.78,  31]);
 db.push(["Jammu and Kashmir",            12.54,   4]);
 db.push(["Uttarakhand",                  10.08,   3]);
 db.push(["Himachal Pradesh",              6.86,   3]);
@@ -50,7 +50,7 @@ db.push(["Andaman and Nicobar Islands",   0.38,   0]);
 db.push(["Dadra and Nagar Haveli",        0.34,   0]);
 db.push(["Daman and Diu",                 0.25,   0]);
 db.push(["Lakshadweep",                   0.06,   0]);
-db.push(["Ladakh",                        0.27,  15]);
+db.push(["Ladakh",                        0.27,  13]);
 
 // weeks starting dates
 var T0_date        = "24/03/2020";
@@ -63,28 +63,31 @@ var default_region = "Karnataka";
 
 // min, max and default of user parameters
 var reg_every_n_min = 1;
-var reg_every_n_max = 10;
-var reg_every_n_def = 5;
+var reg_every_n_max = 5;
 
-var cric_inf_pct_min = 1;
+const reg_every_n_pop_threshold = 10000000; // 10M
+const reg_every_n_large_pop     = 3;
+const reg_every_n_small_pop     = 2;
+
+var cric_inf_pct_min = 10;
 var cric_inf_pct_max = 15;
-var cric_inf_pct_def = 10;
+var cric_inf_pct_def = 15;
 
 var T1_igrowth_min = 5;
 var T1_igrowth_max = 10;
 var T1_igrowth_def = 10;
 
-var T2_igrowth_min = 10;
-var T2_igrowth_max = 20;
-var T2_igrowth_def = 20;
+var T2_igrowth_min = 40;
+var T2_igrowth_max = 50;
+var T2_igrowth_def = 50;
 
-var T3_igrowth_min = 20;
-var T3_igrowth_max = 40;
-var T3_igrowth_def = 40;
+var T3_igrowth_min = 80;
+var T3_igrowth_max = 120;
+var T3_igrowth_def = 120;
 
-var T4_igrowth_min = 40;
-var T4_igrowth_max = 60;
-var T4_igrowth_def = 60;
+var T4_igrowth_min = 200;
+var T4_igrowth_max = 500;
+var T4_igrowth_def = 500;
 
 </script>
 </head>
@@ -166,7 +169,7 @@ var T4_igrowth_def = 60;
     <div class="col-md-3"></div>
     <div class="col-md-6 m-2 mt-4">
       <div class="text-center">
-        <span>Assuming <strong>x</strong> &percnt; of those infected
+        <span>Assuming <strong>x</strong> out of every hundred infected persons
         become critically ill, where</span>
       </div>
       <div class="d-flex justify-content-center mt-2">
@@ -266,7 +269,6 @@ var region = default_region;
 
 document.getElementById("reg-every-n-slider").min         = reg_every_n_min;
 document.getElementById("reg-every-n-slider").max         = reg_every_n_max;
-document.getElementById("reg-every-n-slider").value       = reg_every_n_def;
 document.getElementById("reg-every-n-min-text").innerHTML = reg_every_n_min;
 document.getElementById("reg-every-n-max-text").innerHTML = reg_every_n_max;
 
@@ -300,7 +302,7 @@ var T3_igrowth   = document.getElementById("T3-igrowth-slider").value;
 var T4_igrowth   = document.getElementById("T4-igrowth-slider").value;
 
 // fill prediction statistics table
-function set_stats() {
+function set_stats(t_reset_for_region) {
   let region_data = db[0];
   for (let i = 0; i < db.length; i++) {
     if (db[i][0] == region) {
@@ -308,7 +310,18 @@ function set_stats() {
     }
   }
 
-  let pop         = Math.floor(1000000 * region_data[1]);
+  let pop = Math.floor(1000000 * region_data[1]);
+  if (t_reset_for_region) {
+    document.getElementById("region-search").value = region;
+    if (pop > reg_every_n_pop_threshold) {
+      document.getElementById("reg-every-n-slider").value = reg_every_n_large_pop;
+    } else {
+      document.getElementById("reg-every-n-slider").value = reg_every_n_small_pop;
+    }
+    reg_every_n = document.getElementById("reg-every-n-slider").value;
+    document.getElementById("reg-every-n-text").innerHTML = reg_every_n;
+  }
+
   let T0_reg_inf  = region_data[2];
   let T0_infected = Math.min(Math.floor(Math.max(T0_reg_inf, 1) * reg_every_n), pop);
 
@@ -324,13 +337,11 @@ function set_stats() {
   let T4_infected = Math.min(Math.floor(T0_infected * T4_igrowth), pop);
   let T4_critical = Math.min(Math.floor(T4_infected * cric_inf_pct * 0.01), pop);
 
-  document.getElementById("region-search").value         = region;
+  document.getElementById("cric-inf-pct-text").innerHTML = Math.floor(cric_inf_pct);
   document.getElementById("T0-date").innerHTML           = T0_date;
   document.getElementById("T0-reg-inf").innerHTML        = T0_reg_inf;
-  document.getElementById("reg-every-n-text").innerHTML  = reg_every_n;
   document.getElementById("T0-date1").innerHTML          = T0_date;
   document.getElementById("T0-infected").innerHTML       = T0_infected;
-  document.getElementById("cric-inf-pct-text").innerHTML = Math.floor(cric_inf_pct);
   document.getElementById("T0-date2").innerHTML          = T0_date;
  
   document.getElementById("T1-date").innerHTML           = T1_date;
@@ -355,7 +366,7 @@ function set_stats() {
 }
 
 // initialize
-set_stats();
+set_stats(true);
 
 // fill region list from database
 // TODO change var to let in for loop
@@ -385,47 +396,46 @@ var region_objects = document.getElementsByClassName("region-name");
 for (let i = 0; i < region_objects.length; i++) {
   region_objects[i].addEventListener("click", function(e) {
     let region_name = e.target.textContent;
-    document.getElementById("region-search").value = region_name;
     document.getElementById("region-list").style.display = "none";
     region = region_name;
-    set_stats();
+    set_stats(true);
   });
 }
 
 // select value of reg-every-n
 document.getElementById("reg-every-n-slider").oninput = function() {
   reg_every_n = this.value;
-  set_stats();
+  set_stats(false);
 }
 
 // select value of cric-inf-pct
 document.getElementById("cric-inf-pct-slider").oninput = function() {
   cric_inf_pct = this.value;
-  set_stats();
+  set_stats(false);
 }
 
 // select value of T1-igrowth
 document.getElementById("T1-igrowth-slider").oninput = function() {
   T1_igrowth = this.value;
-  set_stats();
+  set_stats(false);
 }
 
 // select value of T2-igrowth
 document.getElementById("T2-igrowth-slider").oninput = function() {
   T2_igrowth = this.value;
-  set_stats();
+  set_stats(false);
 }
 
 // select value of T3-igrowth
 document.getElementById("T3-igrowth-slider").oninput = function() {
   T3_igrowth = this.value;
-  set_stats();
+  set_stats(false);
 }
 
 // select value of T4-igrowth
 document.getElementById("T4-igrowth-slider").oninput = function() {
   T4_igrowth = this.value;
-  set_stats();
+  set_stats(false);
 }
 
 </script>
