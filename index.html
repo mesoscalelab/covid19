@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>COVID-19 India</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<script>
+var db = [];
+
+// region, population (millions), infected
+db.push(["Uttar Pradesh",               199.81,  31]);
+db.push(["Maharashtra",                 112.37,  74]);
+db.push(["Bihar",                       104.01,   2]);
+db.push(["West Bengal",                  91.27,   7]);
+db.push(["Karnataka",                    61.09,  33]);
+db.push(["Andaman and Nicobar Islands",   0.38,   0]);
+
+// weeks starting dates
+var T0_date        = "24/03/2020";
+var T1_date        = "31/03/2020";
+var T2_date        = "07/04/2020";
+var T3_date        = "14/04/2020";
+var T4_date        = "21/04/2020";
+
+var default_region = "Karnataka";
+
+// min, max and default of user parameters
+var reg_every_n_min = 1;
+var reg_every_n_max = 10;
+var reg_every_n_def = 5;
+
+var cric_inf_pct_min = 1;
+var cric_inf_pct_max = 15;
+var cric_inf_pct_def = 10;
+
+var T1_igrowth_min = 5;
+var T1_igrowth_max = 10;
+var T1_igrowth_def = 10;
+
+var T2_igrowth_min = 10;
+var T2_igrowth_max = 20;
+var T2_igrowth_def = 20;
+
+var T3_igrowth_min = 25;
+var T3_igrowth_max = 40;
+var T3_igrowth_def = 40;
+
+var T4_igrowth_min = 40;
+var T4_igrowth_max = 60;
+var T4_igrowth_def = 60;
+
+</script>
+</head>
+
+<body>
+<div class="app">
+  <!-- title -->
+  <h3 class="text-center font-weight-bold text-blue m-3"><strong>COVID-19 India</strong></h3>
+  <hr>
+
+  <!-- region selector -->
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 m-2">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text"><i class="fa fa-map-marker"></i></span>
+        </div>
+        <input id="region-search" class="form-control" type="text" placeholder="Region...">
+      </div>
+      <ul id="region-list" class="list-group" style="display:none;">
+      </ul>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+
+  <!-- registered infections -->
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 m-2 mt-4">
+      <div class="text-center">
+        <span>Infections registered as of</span>
+        <span class="font-weight-bold" id="T0-date">-</span>
+        <span>:</span>
+        <span id="T0-reg-inf">-</span>
+      </div>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+
+  <!-- select user parameter : reg-every-n -->
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 m-2 mt-4">
+      <div class="text-center">
+        <span>Assuming only one infected person registered out
+        of every <strong>n</strong> infected persons, where</span>
+      </div>
+      <div class="d-flex justify-content-center mt-1">
+        <span class="font-weight-bold">n = &nbsp;</span>
+        <span class="font-weight-bold mr-4" id="reg-every-n-text">-</span>
+        <span class="mx-2" id="reg-every-n-min-text">1</span>
+        <form class="slidecontainer">
+          <input class="slider" type="range" min="1" max="10" value="5" id="reg-every-n-slider"/>
+        </form>
+        <span class="mx-2" id="reg-every-n-max-text">10</span>
+      </div>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+
+  <!-- actual infections -->
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 m-2 mt-4">
+      <div class="text-center">
+        <span>Actual infections as of</span>
+        <span id="T0-date1">-</span>
+        <span>:</span>
+        <span class="font-weight-bold" id="T0-infected">-</span>
+      </div>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+
+  <!-- select user parameter : cric-inf-pct -->
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 m-2 mt-4">
+      <div class="text-center">
+        <span>Assuming <strong>x</strong> &percnt; of those infected
+        become critically ill, where</span>
+      </div>
+      <div class="d-flex justify-content-center">
+        <span class="font-weight-bold">x = &nbsp;</span>
+        <span class="font-weight-bold mr-4" id="cric-inf-pct-text">-</span>
+        <span class="mx-2" id="cric-inf-pct-min-text">-</span>
+        <form class="slidecontainer">
+          <input class="slider" type="range" min="1" max="10" value="5" id="cric-inf-pct-slider"/>
+        </form>
+        <span class="mx-2" id="cric-inf-pct-max-text">-</span>
+      </div>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+
+  <!-- predicted statistics -->
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 m-2 mt-4">
+      <div class="pt-0">
+        <table id="stats" class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col"><div><i class="fa fa-calendar"></i></div></th>
+              <th scope="col">Infection Growth</th>
+              <th scope="col">Factor</th>
+              <th scope="col">Infected</th>
+              <th scope="col">Critical</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th id="T1-date" scope="row">-</th>
+              <td>
+                <form class="slidecontainer">
+                  <input class="slider" type="range" min="1" max="15" value="10" id="T1-igrowth-slider"/>
+                </form>
+              </td>
+              <td id="T1-igrowth"  class="text-center">-</td>
+              <td id="T1-infected" class="text-right">-</td>
+              <td id="T1-critical" class="text-right">-</td>
+            </tr>
+            <tr>
+              <th id="T2-date" scope="row">-</th>
+              <td>
+                <form class="slidecontainer">
+                  <input class="slider" type="range" min="1" max="15" value="10" id="T2-igrowth-slider"/>
+                </form>
+              </td>
+              <td id="T2-igrowth"  class="text-center">-</td>
+              <td id="T2-infected" class="text-right">-</td>
+              <td id="T2-critical" class="text-right">-</td>
+            </tr>
+            <tr>
+              <th id="T3-date" scope="row">-</th>
+              <td>
+                <form class="slidecontainer">
+                  <input class="slider" type="range" min="1" max="15" value="10" id="T3-igrowth-slider"/>
+                </form>
+              </td>
+              <td id="T3-igrowth"  class="text-center">-</td>
+              <td id="T3-infected" class="text-right">-</td>
+              <td id="T3-critical" class="text-right">-</td>
+            </tr>
+            <tr>
+              <th id="T4-date" scope="row">-</th>
+              <td>
+                <form class="slidecontainer">
+                  <input class="slider" type="range" min="1" max="15" value="10" id="T4-igrowth-slider"/>
+                </form>
+              </td>
+              <td id="T4-igrowth"  class="text-center">-</td>
+              <td id="T4-infected" class="text-right">-</td>
+              <td id="T4-critical" class="text-right">-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+
+<script>
+// initialization
+var region = default_region;
+
+document.getElementById("reg-every-n-slider").min         = reg_every_n_min;
+document.getElementById("reg-every-n-slider").max         = reg_every_n_max;
+document.getElementById("reg-every-n-slider").value       = reg_every_n_def;
+document.getElementById("reg-every-n-min-text").innerHTML = reg_every_n_min;
+document.getElementById("reg-every-n-max-text").innerHTML = reg_every_n_max;
+
+document.getElementById("cric-inf-pct-slider").min         = cric_inf_pct_min;
+document.getElementById("cric-inf-pct-slider").max         = cric_inf_pct_max;
+document.getElementById("cric-inf-pct-slider").value       = cric_inf_pct_def;
+document.getElementById("cric-inf-pct-min-text").innerHTML = cric_inf_pct_min;
+document.getElementById("cric-inf-pct-max-text").innerHTML = cric_inf_pct_max;
+
+document.getElementById("T1-igrowth-slider").min           = T1_igrowth_min;
+document.getElementById("T1-igrowth-slider").max           = T1_igrowth_max;
+document.getElementById("T1-igrowth-slider").value         = T1_igrowth_def;
+
+document.getElementById("T2-igrowth-slider").min           = T2_igrowth_min;
+document.getElementById("T2-igrowth-slider").max           = T2_igrowth_max;
+document.getElementById("T2-igrowth-slider").value         = T2_igrowth_def;
+
+document.getElementById("T3-igrowth-slider").min           = T3_igrowth_min;
+document.getElementById("T3-igrowth-slider").max           = T3_igrowth_max;
+document.getElementById("T3-igrowth-slider").value         = T3_igrowth_def;
+
+document.getElementById("T4-igrowth-slider").min           = T4_igrowth_min;
+document.getElementById("T4-igrowth-slider").max           = T4_igrowth_max;
+document.getElementById("T4-igrowth-slider").value         = T4_igrowth_def;
+
+var reg_every_n  = document.getElementById("reg-every-n-slider").value;
+var cric_inf_pct = document.getElementById("cric-inf-pct-slider").value;
+var T1_igrowth   = document.getElementById("T1-igrowth-slider").value;
+var T2_igrowth   = document.getElementById("T2-igrowth-slider").value;
+var T3_igrowth   = document.getElementById("T3-igrowth-slider").value;
+var T4_igrowth   = document.getElementById("T4-igrowth-slider").value;
+
+// fill prediction statistics table
+function set_stats() {
+  let region_data = db[0];
+  for (let i = 0; i < db.length; i++) {
+    if (db[i][0] == region) {
+      region_data = db[i];
+    }
+  }
+
+  let pop         = Math.floor(1000000 * region_data[1]);
+  let T0_reg_inf  = region_data[2];
+  let T0_infected = Math.min(Math.floor(Math.max(T0_reg_inf, 1) * reg_every_n), pop);
+
+  let T1_infected = Math.min(Math.floor(T0_infected * T1_igrowth), pop);
+  let T1_critical = Math.min(Math.floor(T1_infected * cric_inf_pct * 0.01), pop);
+
+  let T2_infected = Math.min(Math.floor(T0_infected * T2_igrowth), pop);
+  let T2_critical = Math.min(Math.floor(T2_infected * cric_inf_pct * 0.01), pop);
+
+  let T3_infected = Math.min(Math.floor(T0_infected * T3_igrowth), pop);
+  let T3_critical = Math.min(Math.floor(T3_infected * cric_inf_pct * 0.01), pop);
+
+  let T4_infected = Math.min(Math.floor(T0_infected * T4_igrowth), pop);
+  let T4_critical = Math.min(Math.floor(T4_infected * cric_inf_pct * 0.01), pop);
+
+  document.getElementById("region-search").value         = region;
+  document.getElementById("T0-date").innerHTML           = T0_date;
+  document.getElementById("T0-reg-inf").innerHTML        = T0_reg_inf;
+  document.getElementById("reg-every-n-text").innerHTML  = reg_every_n;
+  document.getElementById("T0-date1").innerHTML          = T0_date;
+  document.getElementById("T0-infected").innerHTML       = T0_infected;
+  document.getElementById("cric-inf-pct-text").innerHTML = Math.floor(cric_inf_pct);
+ 
+  document.getElementById("T1-date").innerHTML           = T1_date;
+  document.getElementById("T1-igrowth").innerHTML        = Math.floor(T1_igrowth).toString().concat("x");
+  document.getElementById("T1-infected").innerHTML       = T1_infected;
+  document.getElementById("T1-critical").innerHTML       = T1_critical;
+ 
+  document.getElementById("T2-date").innerHTML           = T2_date;
+  document.getElementById("T2-igrowth").innerHTML        = Math.floor(T2_igrowth).toString().concat("x");
+  document.getElementById("T2-infected").innerHTML       = T2_infected;
+  document.getElementById("T2-critical").innerHTML       = T2_critical;
+ 
+  document.getElementById("T3-date").innerHTML           = T3_date;
+  document.getElementById("T3-igrowth").innerHTML        = Math.floor(T3_igrowth).toString().concat("x");
+  document.getElementById("T3-infected").innerHTML       = T3_infected;
+  document.getElementById("T3-critical").innerHTML       = T3_critical;
+ 
+  document.getElementById("T4-date").innerHTML           = T4_date;
+  document.getElementById("T4-igrowth").innerHTML        = Math.floor(T4_igrowth).toString().concat("x");
+  document.getElementById("T4-infected").innerHTML       = T4_infected;
+  document.getElementById("T4-critical").innerHTML       = T4_critical;
+}
+
+// initialize
+set_stats();
+
+// fill region list from database
+// TODO change var to let in for loop
+var region_list = document.getElementById("region-list");
+for (let i = 0; i < db.length; i++) {
+  let entry = document.createElement('li');
+  entry.appendChild(document.createTextNode(db[i][0]));
+  entry.classList.add("region-name");
+  entry.classList.add("list-group-item");
+  region_list.appendChild(entry);
+}
+
+// select region
+var region_search = document.getElementById("region-search");
+region_search.addEventListener("keyup", function(e) {
+  let value = $(this).val().toLowerCase();
+  if (value == "") {
+    region_list.style.display = "none";
+  } else {
+    region_list.style.display = "block";
+  }
+  $("#region-list li").filter(function() {
+    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+  });
+});
+var region_objects = document.getElementsByClassName("region-name");
+for (let i = 0; i < region_objects.length; i++) {
+  region_objects[i].addEventListener("click", function(e) {
+    let region_name = e.target.textContent;
+    document.getElementById("region-search").value = region_name;
+    document.getElementById("region-list").style.display = "none";
+    region = region_name;
+    set_stats();
+  });
+}
+
+// select value of reg-every-n
+document.getElementById("reg-every-n-slider").oninput = function() {
+  reg_every_n = this.value;
+  set_stats();
+}
+
+// select value of cric-inf-pct
+document.getElementById("cric-inf-pct-slider").oninput = function() {
+  cric_inf_pct = this.value;
+  set_stats();
+}
+
+// select value of T1-igrowth
+document.getElementById("T1-igrowth-slider").oninput = function() {
+  T1_igrowth = this.value;
+  set_stats();
+}
+
+// select value of T2-igrowth
+document.getElementById("T2-igrowth-slider").oninput = function() {
+  T2_igrowth = this.value;
+  set_stats();
+}
+
+// select value of T3-igrowth
+document.getElementById("T3-igrowth-slider").oninput = function() {
+  T3_igrowth = this.value;
+  set_stats();
+}
+
+// select value of T4-igrowth
+document.getElementById("T4-igrowth-slider").oninput = function() {
+  T4_igrowth = this.value;
+  set_stats();
+}
+
+</script>
+</body>
+</html>
