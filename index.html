@@ -18,8 +18,39 @@ db.push(["Uttar Pradesh",               199.81,  31]);
 db.push(["Maharashtra",                 112.37,  74]);
 db.push(["Bihar",                       104.01,   2]);
 db.push(["West Bengal",                  91.27,   7]);
+db.push(["Telangana",                    35.20,  32]);
+db.push(["Andhra Pradesh",               49.70,   7]);
+db.push(["Madhya Pradesh",               72.63,   6]);
+db.push(["Tamil Nadu",                   72.15,   9]);
+db.push(["Rajasthan",                    68.55,  28]);
 db.push(["Karnataka",                    61.09,  33]);
+db.push(["Gujarat",                      60.43,  29]);
+db.push(["Orissa",                       41.97,   2]);
+db.push(["Kerala",                       33.40,  67]);
+db.push(["Jharkhand",                    32.98,   0]);
+db.push(["Assam",                        31.20,   0]);
+db.push(["Punjab",                       27.75,  21]);
+db.push(["Chhattisgarh",                 25.54,   1]);
+db.push(["Haryana",                      25.35,  26]);
+db.push(["Delhi",                        16.78,  29]);
+db.push(["Jammu and Kashmir",            12.54,   4]);
+db.push(["Uttarakhand",                  10.08,   3]);
+db.push(["Himachal Pradesh",              6.86,   3]);
+db.push(["Tripura",                       3.67,   0]);
+db.push(["Meghalaya",                     2.96,   0]);
+db.push(["Manipur",                       2.85,   0]);
+db.push(["Nagaland",                      1.98,   0]);
+db.push(["Goa",                           1.46,   0]);
+db.push(["Arunachal Pradesh",             1.38,   0]);
+db.push(["Puducherry",                    1.24,   1]);
+db.push(["Mizoram",                       1.09,   0]);
+db.push(["Chandigarh",                    1.05,   5]);
+db.push(["Sikkim",                        0.61,   0]);
 db.push(["Andaman and Nicobar Islands",   0.38,   0]);
+db.push(["Dadra and Nagar Haveli",        0.34,   0]);
+db.push(["Daman and Diu",                 0.25,   0]);
+db.push(["Lakshadweep",                   0.06,   0]);
+db.push(["Ladakh",                        0.27,  15]);
 
 // weeks starting dates
 var T0_date        = "24/03/2020";
@@ -47,7 +78,7 @@ var T2_igrowth_min = 10;
 var T2_igrowth_max = 20;
 var T2_igrowth_def = 20;
 
-var T3_igrowth_min = 25;
+var T3_igrowth_min = 20;
 var T3_igrowth_max = 40;
 var T3_igrowth_def = 40;
 
@@ -66,8 +97,8 @@ var T4_igrowth_def = 60;
 
   <!-- region selector -->
   <div class="row">
-    <div class="col-md-4"></div>
-    <div class="col-md-4 m-2">
+    <div class="col-md-3"></div>
+    <div class="col-md-6 m-2">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text"><i class="fa fa-map-marker"></i></span>
@@ -77,32 +108,33 @@ var T4_igrowth_def = 60;
       <ul id="region-list" class="list-group" style="display:none;">
       </ul>
     </div>
-    <div class="col-md-4"></div>
+    <div class="col-md-3"></div>
   </div>
 
   <!-- registered infections -->
   <div class="row">
-    <div class="col-md-4"></div>
-    <div class="col-md-4 m-2 mt-4">
+    <div class="col-md-3"></div>
+    <div class="col-md-6 m-2 mt-4">
       <div class="text-center">
-        <span>Infections registered as of</span>
+        <span>Infections registered* as of</span>
         <span class="font-weight-bold" id="T0-date">-</span>
         <span>:</span>
-        <span id="T0-reg-inf">-</span>
+        <span id="T0-reg-inf">-</span><br>
+        <a href="https://www.mohfw.gov.in/">*Ministry of Health and Family Welfare, Government of India</a>
       </div>
     </div>
-    <div class="col-md-4"></div>
+    <div class="col-md-3"></div>
   </div>
 
   <!-- select user parameter : reg-every-n -->
   <div class="row">
-    <div class="col-md-4"></div>
-    <div class="col-md-4 m-2 mt-4">
+    <div class="col-md-3"></div>
+    <div class="col-md-6 m-2 mt-4">
       <div class="text-center">
         <span>Assuming only one infected person registered out
         of every <strong>n</strong> infected persons, where</span>
       </div>
-      <div class="d-flex justify-content-center mt-1">
+      <div class="d-flex justify-content-center mt-2">
         <span class="font-weight-bold">n = &nbsp;</span>
         <span class="font-weight-bold mr-4" id="reg-every-n-text">-</span>
         <span class="mx-2" id="reg-every-n-min-text">1</span>
@@ -112,32 +144,32 @@ var T4_igrowth_def = 60;
         <span class="mx-2" id="reg-every-n-max-text">10</span>
       </div>
     </div>
-    <div class="col-md-4"></div>
+    <div class="col-md-3"></div>
   </div>
 
   <!-- actual infections -->
   <div class="row">
-    <div class="col-md-4"></div>
-    <div class="col-md-4 m-2 mt-4">
+    <div class="col-md-3"></div>
+    <div class="col-md-6 m-2 mt-4">
       <div class="text-center">
-        <span>Actual infections as of</span>
+        <span>Estimated actual infections as of</span>
         <span id="T0-date1">-</span>
         <span>:</span>
         <span class="font-weight-bold" id="T0-infected">-</span>
       </div>
     </div>
-    <div class="col-md-4"></div>
+    <div class="col-md-3"></div>
   </div>
 
   <!-- select user parameter : cric-inf-pct -->
   <div class="row">
-    <div class="col-md-4"></div>
-    <div class="col-md-4 m-2 mt-4">
+    <div class="col-md-3"></div>
+    <div class="col-md-6 m-2 mt-4">
       <div class="text-center">
         <span>Assuming <strong>x</strong> &percnt; of those infected
         become critically ill, where</span>
       </div>
-      <div class="d-flex justify-content-center">
+      <div class="d-flex justify-content-center mt-2">
         <span class="font-weight-bold">x = &nbsp;</span>
         <span class="font-weight-bold mr-4" id="cric-inf-pct-text">-</span>
         <span class="mx-2" id="cric-inf-pct-min-text">-</span>
@@ -147,29 +179,40 @@ var T4_igrowth_def = 60;
         <span class="mx-2" id="cric-inf-pct-max-text">-</span>
       </div>
     </div>
-    <div class="col-md-4"></div>
+    <div class="col-md-3"></div>
+  </div>
+
+  <!-- table section -->
+  <div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-6 m-2 mt-4">
+      <div class="text-left">
+        <span><strong><u>Predictions for next four weeks</u></strong></span>
+      </div>
+    </div>
+    <div class="col-md-3"></div>
   </div>
 
   <!-- predicted statistics -->
   <div class="row">
-    <div class="col-md-4"></div>
-    <div class="col-md-4 m-2 mt-4">
+    <div class="col-md-3"></div>
+    <div class="col-md-6 m-2 mt-4">
       <div class="pt-0">
         <table id="stats" class="table table-bordered">
           <thead>
             <tr>
-              <th scope="col"><div><i class="fa fa-calendar"></i></div></th>
-              <th scope="col">Infection Growth</th>
-              <th scope="col">Factor</th>
-              <th scope="col">Infected</th>
-              <th scope="col">Critical</th>
+              <th class="text-center" scope="col"><div><i class="fa fa-calendar"></i></div></th>
+              <th class="text-center" scope="col">Infection Growth</th>
+              <th class="text-center" scope="col">Factor</th>
+              <th class="text-center" scope="col">Infected</th>
+              <th class="text-center" scope="col">Critical</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <th id="T1-date" scope="row">-</th>
+              <th id="T1-date" class="text-center" scope="row">-</th>
               <td>
-                <form class="slidecontainer">
+                <form class="slidecontainer text-center">
                   <input class="slider" type="range" min="1" max="15" value="10" id="T1-igrowth-slider"/>
                 </form>
               </td>
@@ -178,9 +221,9 @@ var T4_igrowth_def = 60;
               <td id="T1-critical" class="text-right">-</td>
             </tr>
             <tr>
-              <th id="T2-date" scope="row">-</th>
+              <th id="T2-date" class="text-center" scope="row">-</th>
               <td>
-                <form class="slidecontainer">
+                <form class="slidecontainer text-center">
                   <input class="slider" type="range" min="1" max="15" value="10" id="T2-igrowth-slider"/>
                 </form>
               </td>
@@ -189,9 +232,9 @@ var T4_igrowth_def = 60;
               <td id="T2-critical" class="text-right">-</td>
             </tr>
             <tr>
-              <th id="T3-date" scope="row">-</th>
+              <th id="T3-date" class="text-center" scope="row">-</th>
               <td>
-                <form class="slidecontainer">
+                <form class="slidecontainer text-center">
                   <input class="slider" type="range" min="1" max="15" value="10" id="T3-igrowth-slider"/>
                 </form>
               </td>
@@ -200,9 +243,9 @@ var T4_igrowth_def = 60;
               <td id="T3-critical" class="text-right">-</td>
             </tr>
             <tr>
-              <th id="T4-date" scope="row">-</th>
+              <th id="T4-date" class="text-center" scope="row">-</th>
               <td>
-                <form class="slidecontainer">
+                <form class="slidecontainer text-center">
                   <input class="slider" type="range" min="1" max="15" value="10" id="T4-igrowth-slider"/>
                 </form>
               </td>
@@ -214,7 +257,7 @@ var T4_igrowth_def = 60;
         </table>
       </div>
     </div>
-    <div class="col-md-4"></div>
+    <div class="col-md-3"></div>
   </div>
 
 <script>
