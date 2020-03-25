@@ -95,13 +95,18 @@ var T4_igrowth_def = 500;
 <body>
 <div class="app">
   <!-- title -->
-  <h3 class="text-center font-weight-bold text-blue m-3"><strong>COVID-19 India</strong></h3>
+  <h3 class="text-center font-weight-bold mt-3"><strong>COVID-19 Model for India</strong></h3>
+  <h6 class="text-center">Mesoscale Lab, Eng. Mech. Unit, JNCASR Bengaluru</h6>
+  <h6 class="text-center">Aloke Lab, Dept. Mechanical Engg., IISc Bengaluru</h6>
   <hr>
 
   <!-- region selector -->
   <div class="row">
-    <div class="col-md-3"></div>
-    <div class="col-md-6 m-2">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 m-2">
+      <div class="text-center">
+        <span>Select State or Union Territory: </span>
+      </div>
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text"><i class="fa fa-map-marker"></i></span>
@@ -111,7 +116,7 @@ var T4_igrowth_def = 500;
       <ul id="region-list" class="list-group" style="display:none;">
       </ul>
     </div>
-    <div class="col-md-3"></div>
+    <div class="col-md-4"></div>
   </div>
 
   <!-- registered infections -->
@@ -134,7 +139,7 @@ var T4_igrowth_def = 500;
     <div class="col-md-3"></div>
     <div class="col-md-6 m-2 mt-4">
       <div class="d-flex justify-content-center mt-2">
-        <span>Inflation Factor^ &nbsp; <strong>n</strong> = &nbsp;</span>
+        <span>Inflation Factor** &nbsp; <strong>n</strong> = &nbsp;</span>
         <span class="font-weight-bold mr-4" id="reg-every-n-text">-</span>
         <span class="mx-2" id="reg-every-n-min-text">1</span>
         <form class="slidecontainer">
@@ -143,7 +148,7 @@ var T4_igrowth_def = 500;
         <span class="mx-2" id="reg-every-n-max-text">10</span>
       </div>
       <div class="text-center">
-        <span>^Assumes that only one infected person registered out
+        <span>**Assumes that only one infected person registered out
         of every n infected persons</span>
       </div>
     </div>
