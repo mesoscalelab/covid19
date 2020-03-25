@@ -324,7 +324,6 @@ function set_stats(t_reset_for_region) {
       document.getElementById("reg-every-n-slider").value = reg_every_n_small_pop;
     }
     reg_every_n = document.getElementById("reg-every-n-slider").value;
-    document.getElementById("reg-every-n-text").innerHTML = reg_every_n;
   }
 
   let T0_reg_inf  = region_data[2];
@@ -342,6 +341,7 @@ function set_stats(t_reset_for_region) {
   let T4_infected = Math.min(Math.floor(T0_infected * T4_igrowth), pop);
   let T4_critical = Math.min(Math.floor(T4_infected * cric_inf_pct * 0.01), pop);
 
+  document.getElementById("reg-every-n-text").innerHTML  = reg_every_n;
   document.getElementById("cric-inf-pct-text").innerHTML = Math.floor(cric_inf_pct);
   document.getElementById("T0-date").innerHTML           = T0_date;
   document.getElementById("T0-reg-inf").innerHTML        = T0_reg_inf;
