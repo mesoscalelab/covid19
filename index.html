@@ -10,6 +10,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.2/css/bootstrap-slider.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.2/bootstrap-slider.min.js"></script>
+
 <script>
 var db = [];
 
@@ -70,34 +73,48 @@ const reg_every_n_large_pop     = 3;
 const reg_every_n_small_pop     = 2;
 
 var cric_inf_pct_min = 0;
+var cric_inf_pct_mod = 10;
+var cric_inf_pct_wst = 15;
 var cric_inf_pct_max = 20;
-var cric_inf_pct_def = 15;
+var cric_inf_pct_def = cric_inf_pct_wst;
 
-var T1_igrowth_min = 5;
-var T1_igrowth_max = 10;
-var T1_igrowth_def = 10;
+var T1_igrowth_min =   2;
+var T1_igrowth_mod =   5;
+var T1_igrowth_wst =  10;
+var T1_igrowth_max =  15;
+var T1_igrowth_inc =   1;
+var T1_igrowth_def = T1_igrowth_wst;
 
-var T2_igrowth_min = 20;
-var T2_igrowth_max = 50;
-var T2_igrowth_def = 50;
+var T2_igrowth_min =  20;
+var T2_igrowth_mod =  40;
+var T2_igrowth_wst =  50;
+var T2_igrowth_max =  60;
+var T2_igrowth_inc =   2;
+var T2_igrowth_def =  T2_igrowth_wst;
 
-var T3_igrowth_min = 60;
-var T3_igrowth_max = 120;
-var T3_igrowth_def = 120;
+var T3_igrowth_min =  60;
+var T3_igrowth_mod =  80;
+var T3_igrowth_wst = 120;
+var T3_igrowth_max = 150;
+var T3_igrowth_inc =   5;
+var T3_igrowth_def = T3_igrowth_wst;
 
-var T4_igrowth_min = 150;
-var T4_igrowth_max = 500;
-var T4_igrowth_def = 500;
+var T4_igrowth_min = 155;
+var T4_igrowth_mod = 200;
+var T4_igrowth_wst = 500;
+var T4_igrowth_max = 590;
+var T4_igrowth_inc =  15;
+var T4_igrowth_def = T4_igrowth_wst;
 
 </script>
 </head>
 
 <body>
-<div class="app">
+<div class="container app">
   <!-- title -->
   <h3 class="text-center font-weight-bold mt-3"><strong>COVID-19 Model for India</strong></h3>
-  <h6 class="text-center">Prof. Santosh Ansumali, Eng. Mech. Unit, JNCASR Bengaluru</h6>
-  <h6 class="text-center">Prof. Aloke Kumar, Dept. Mechanical Engg., IISc Bengaluru</h6>
+  <h6 class="text-center">Prof. Santosh Ansumali, Engineering Mechanics Unit, JNCASR Bengaluru</h6>
+  <h6 class="text-center">Prof. Aloke Kumar, Department of Mechanical Engineering, IISc Bengaluru</h6>
   <hr>
 
   <!-- region selector -->
@@ -137,19 +154,17 @@ var T4_igrowth_def = 500;
   <!-- select user parameter : reg-every-n -->
   <div class="row">
     <div class="col-md-3"></div>
-    <div class="col-md-6 m-2 mt-4">
-      <div class="d-flex justify-content-center mt-2">
-        <span>Inflation Factor** &nbsp; <strong>n</strong> = &nbsp;</span>
-        <span class="font-weight-bold mr-4" id="reg-every-n-text">-</span>
-        <span class="mx-2" id="reg-every-n-min-text">1</span>
-        <form class="slidecontainer">
-          <input class="slider" type="range" min="1" max="10" value="5" id="reg-every-n-slider"/>
-        </form>
-        <span class="mx-2" id="reg-every-n-max-text">10</span>
+    <div class="col-md-6 mt-4 text-center">
+      <div>
+        <span>Inflation Factor** &nbsp; <strong>n</strong> =</span>
+        <span class="font-weight-bold" id="reg-every-n-text">-</span>
       </div>
-      <div class="text-center">
-        <span>**Assumes that only one infected person registered out
-        of every n infected persons</span>
+      <div>
+        <input id="reg-every-n-slider" type="text" data-slider-id="n-slider"/>
+      </div>
+      <div>
+        <span>**Assumes only one infected person registered out of every
+              <strong>n</strong> infected persons</span>
       </div>
     </div>
     <div class="col-md-3"></div>
@@ -160,7 +175,7 @@ var T4_igrowth_def = 500;
     <div class="col-md-3"></div>
     <div class="col-md-6 m-2 mt-4">
       <div class="text-center">
-        <span><strong>Estimated actual</strong> infections as of</span>
+        <span><strong>Estimated</strong> infections as of</span>
         <span id="T0-date1">-</span>
         <span>:</span>
         <span class="font-weight-bold" id="T0-infected">-</span>
@@ -171,31 +186,29 @@ var T4_igrowth_def = 500;
 
   <!-- select user parameter : cric-inf-pct -->
   <div class="row">
-    <div class="col-md-3"></div>
-    <div class="col-md-6 m-2 mt-4">
-      <div class="text-center">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 mt-4 text-center">
+      <div>
         <span>Assuming <strong>x</strong> out of every hundred infected persons
         become critically ill, where</span>
       </div>
-      <div class="d-flex justify-content-center mt-2">
-        <span class="font-weight-bold">x = &nbsp;</span>
-        <span class="font-weight-bold mr-4" id="cric-inf-pct-text">-</span>
-        <span class="mx-2" id="cric-inf-pct-min-text">-</span>
-        <form class="slidecontainer">
-          <input class="slider" type="range" min="1" max="10" value="5" id="cric-inf-pct-slider"/>
-        </form>
-        <span class="mx-2" id="cric-inf-pct-max-text">-</span>
+      <div>
+        <span class="font-weight-bold">x =</span>
+        <span class="font-weight-bold" id="cric-inf-pct-text">-</span>
+      </div>
+      <div>
+        <input id="cric-inf-pct-slider" type="text" data-slider-id="x-slider"/>
       </div>
     </div>
-    <div class="col-md-3"></div>
+    <div class="col-md-2"></div>
   </div>
 
   <!-- table section -->
   <div class="row">
     <div class="col-md-3"></div>
-    <div class="col-md-6 m-2 mt-4">
+    <div class="col-md-6 mt-4">
       <div class="text-left">
-        <span><strong><u>Predictions for next four weeks</u></strong></span>
+        <span><strong><em>Prediction for next four weeks:</em></strong></span>
       </div>
     </div>
     <div class="col-md-3"></div>
@@ -204,7 +217,7 @@ var T4_igrowth_def = 500;
   <!-- predicted statistics -->
   <div class="row">
     <div class="col-md-3"></div>
-    <div class="col-md-6 m-2 mt-4">
+    <div class="col-md-6 mt-2">
       <div class="pt-0">
         <table id="stats" class="table table-bordered">
           <thead>
@@ -219,10 +232,8 @@ var T4_igrowth_def = 500;
           <tbody>
             <tr>
               <th id="T1-date" class="text-center" scope="row">-</th>
-              <td>
-                <form class="slidecontainer text-center">
-                  <input class="slider" type="range" min="1" max="15" value="10" id="T1-igrowth-slider"/>
-                </form>
+              <td class="text-center">
+                <input id="T1-igrowth-slider" type="text" data-slider-id="T1-slider"/>
               </td>
               <td id="T1-igrowth"  class="text-center">-</td>
               <td id="T1-infected" class="text-right">-</td>
@@ -230,10 +241,8 @@ var T4_igrowth_def = 500;
             </tr>
             <tr>
               <th id="T2-date" class="text-center" scope="row">-</th>
-              <td>
-                <form class="slidecontainer text-center">
-                  <input class="slider" type="range" min="1" max="15" value="10" id="T2-igrowth-slider"/>
-                </form>
+              <td class="text-center">
+                <input id="T2-igrowth-slider" type="text" data-slider-id="T2-slider"/>
               </td>
               <td id="T2-igrowth"  class="text-center">-</td>
               <td id="T2-infected" class="text-right">-</td>
@@ -241,10 +250,8 @@ var T4_igrowth_def = 500;
             </tr>
             <tr>
               <th id="T3-date" class="text-center" scope="row">-</th>
-              <td>
-                <form class="slidecontainer text-center">
-                  <input class="slider" type="range" min="1" max="15" value="10" id="T3-igrowth-slider"/>
-                </form>
+              <td class="text-center">
+                <input id="T3-igrowth-slider" type="text" data-slider-id="T3-slider"/>
               </td>
               <td id="T3-igrowth"  class="text-center">-</td>
               <td id="T3-infected" class="text-right">-</td>
@@ -252,10 +259,8 @@ var T4_igrowth_def = 500;
             </tr>
             <tr>
               <th id="T4-date" class="text-center" scope="row">-</th>
-              <td>
-                <form class="slidecontainer text-center">
-                  <input class="slider" type="range" min="1" max="15" value="10" id="T4-igrowth-slider"/>
-                </form>
+              <td class="text-center">
+                <input id="T4-igrowth-slider" type="text" data-slider-id="T4-slider"/>
               </td>
               <td id="T4-igrowth"  class="text-center">-</td>
               <td id="T4-infected" class="text-right">-</td>
@@ -264,47 +269,146 @@ var T4_igrowth_def = 500;
           </tbody>
         </table>
       </div>
+    <div class="text-left">
+      <span>Parameters for moderate and worst case scenarios are marked with</span>
+      <span style="color: green">green</span>
+      <span>and</span>
+      <span style="color: red">red</span>
+      <span>stops, respectively, on the sliders</span>
+    </div>
     </div>
     <div class="col-md-3"></div>
   </div>
 
+
+<style>
+#n-slider .slider-selection {
+	background: lightblue;
+}
+
+#x-slider .slider-selection {
+	background: lightblue;
+}
+
+#x-slider .slider-rangeHighlight.moderate {
+    background: green;
+}
+
+#x-slider .slider-rangeHighlight.worst {
+    background: red;
+}
+
+#T1-slider .slider-selection {
+	background: lightblue;
+}
+
+#T1-slider .slider-rangeHighlight.moderate {
+    background: green;
+}
+
+#T1-slider .slider-rangeHighlight.worst {
+    background: red;
+}
+
+#T2-slider .slider-selection {
+	background: lightblue;
+}
+
+#T2-slider .slider-rangeHighlight.moderate {
+    background: green;
+}
+
+#T2-slider .slider-rangeHighlight.worst {
+    background: red;
+}
+
+#T3-slider .slider-selection {
+	background: lightblue;
+}
+
+#T3-slider .slider-rangeHighlight.moderate {
+    background: green;
+}
+
+#T3-slider .slider-rangeHighlight.worst {
+    background: red;
+}
+
+#T4-slider .slider-selection {
+	background: lightblue;
+}
+
+#T4-slider .slider-rangeHighlight.moderate {
+    background: green;
+}
+
+#T4-slider .slider-rangeHighlight.worst {
+    background: red;
+}
+</style>
 <script>
+
+// create sliders
+var reg_every_n_slider = new Slider("#reg-every-n-slider", {
+  id   : 'n-slider',
+  min  : reg_every_n_min,
+  max  : reg_every_n_max,
+  step : 1,
+  value: reg_every_n_min});
+
+var cric_inf_pct_slider = new Slider("#cric-inf-pct-slider", {
+  id   : 'x-slider',
+  min  : cric_inf_pct_min,
+  max  : cric_inf_pct_max,
+  step : 1,
+  value: cric_inf_pct_def,
+  rangeHighlights: [{ "start": cric_inf_pct_mod - 0.5, "end": cric_inf_pct_mod + 0.5, "class": "moderate" },
+                    { "start": cric_inf_pct_wst - 0.5, "end": cric_inf_pct_wst + 0.5, "class": "worst" }]});
+
+var T1_igrowth_slider = new Slider("#T1-igrowth-slider", {
+  id   : 'T1-slider',
+  min  : T1_igrowth_min,
+  max  : T1_igrowth_max,
+  step : T1_igrowth_inc,
+  value: T1_igrowth_def,
+  rangeHighlights: [{ "start": T1_igrowth_mod - 0.5 * T1_igrowth_inc, "end": T1_igrowth_mod + 0.5 * T1_igrowth_inc, "class": "moderate" },
+                    { "start": T1_igrowth_wst - 0.5 * T1_igrowth_inc, "end": T1_igrowth_wst + 0.5 * T1_igrowth_inc, "class": "worst" }]});
+
+var T2_igrowth_slider = new Slider("#T2-igrowth-slider", {
+  id   : 'T2-slider',
+  min  : T2_igrowth_min,
+  max  : T2_igrowth_max,
+  step : T2_igrowth_inc,
+  value: T2_igrowth_def,
+  rangeHighlights: [{ "start": T2_igrowth_mod - 0.5 * T2_igrowth_inc, "end": T2_igrowth_mod + 0.5 * T2_igrowth_inc, "class": "moderate" },
+                    { "start": T2_igrowth_wst - 0.5 * T2_igrowth_inc, "end": T2_igrowth_wst + 0.5 * T2_igrowth_inc, "class": "worst" }]});
+
+var T3_igrowth_slider = new Slider("#T3-igrowth-slider", {
+  id   : 'T3-slider',
+  min  : T3_igrowth_min,
+  max  : T3_igrowth_max,
+  step : T3_igrowth_inc,
+  value: T3_igrowth_def,
+  rangeHighlights: [{ "start": T3_igrowth_mod - 0.5 * T3_igrowth_inc, "end": T3_igrowth_mod + 0.5 * T3_igrowth_inc, "class": "moderate" },
+                    { "start": T3_igrowth_wst - 0.5 * T3_igrowth_inc, "end": T3_igrowth_wst + 0.5 * T3_igrowth_inc, "class": "worst" }]});
+
+var T4_igrowth_slider = new Slider("#T4-igrowth-slider", {
+  id   : 'T4-slider',
+  min  : T4_igrowth_min,
+  max  : T4_igrowth_max,
+  step : T4_igrowth_inc,
+  value: T4_igrowth_def,
+  rangeHighlights: [{ "start": T4_igrowth_mod - 0.5 * T4_igrowth_inc, "end": T4_igrowth_mod + 0.5 * T4_igrowth_inc, "class": "moderate" },
+                    { "start": T4_igrowth_wst - 0.5 * T4_igrowth_inc, "end": T4_igrowth_wst + 0.5 * T4_igrowth_inc, "class": "worst" }]});
+
 // initialization
-var region = default_region;
-
-document.getElementById("reg-every-n-slider").min         = reg_every_n_min;
-document.getElementById("reg-every-n-slider").max         = reg_every_n_max;
-document.getElementById("reg-every-n-min-text").innerHTML = reg_every_n_min;
-document.getElementById("reg-every-n-max-text").innerHTML = reg_every_n_max;
-
-document.getElementById("cric-inf-pct-slider").min         = cric_inf_pct_min;
-document.getElementById("cric-inf-pct-slider").max         = cric_inf_pct_max;
-document.getElementById("cric-inf-pct-slider").value       = cric_inf_pct_def;
-document.getElementById("cric-inf-pct-min-text").innerHTML = cric_inf_pct_min;
-document.getElementById("cric-inf-pct-max-text").innerHTML = cric_inf_pct_max;
-
-document.getElementById("T1-igrowth-slider").min           = T1_igrowth_min;
-document.getElementById("T1-igrowth-slider").max           = T1_igrowth_max;
-document.getElementById("T1-igrowth-slider").value         = T1_igrowth_def;
-
-document.getElementById("T2-igrowth-slider").min           = T2_igrowth_min;
-document.getElementById("T2-igrowth-slider").max           = T2_igrowth_max;
-document.getElementById("T2-igrowth-slider").value         = T2_igrowth_def;
-
-document.getElementById("T3-igrowth-slider").min           = T3_igrowth_min;
-document.getElementById("T3-igrowth-slider").max           = T3_igrowth_max;
-document.getElementById("T3-igrowth-slider").value         = T3_igrowth_def;
-
-document.getElementById("T4-igrowth-slider").min           = T4_igrowth_min;
-document.getElementById("T4-igrowth-slider").max           = T4_igrowth_max;
-document.getElementById("T4-igrowth-slider").value         = T4_igrowth_def;
-
-var reg_every_n  = document.getElementById("reg-every-n-slider").value;
-var cric_inf_pct = document.getElementById("cric-inf-pct-slider").value;
-var T1_igrowth   = document.getElementById("T1-igrowth-slider").value;
-var T2_igrowth   = document.getElementById("T2-igrowth-slider").value;
-var T3_igrowth   = document.getElementById("T3-igrowth-slider").value;
-var T4_igrowth   = document.getElementById("T4-igrowth-slider").value;
+var region       = default_region;
+var reg_every_n  = reg_every_n_slider.getValue();
+var cric_inf_pct = cric_inf_pct_slider.getValue();
+var T1_igrowth   = T1_igrowth_slider.getValue();
+var T2_igrowth   = T2_igrowth_slider.getValue();
+var T3_igrowth   = T3_igrowth_slider.getValue();
+var T4_igrowth   = T4_igrowth_slider.getValue();
 
 // fill prediction statistics table
 function set_stats(t_reset_for_region) {
@@ -319,11 +423,11 @@ function set_stats(t_reset_for_region) {
   if (t_reset_for_region) {
     document.getElementById("region-search").value = region;
     if (pop > reg_every_n_pop_threshold) {
-      document.getElementById("reg-every-n-slider").value = reg_every_n_large_pop;
+      reg_every_n_slider.setValue(reg_every_n_large_pop);
     } else {
-      document.getElementById("reg-every-n-slider").value = reg_every_n_small_pop;
+      reg_every_n_slider.setValue(reg_every_n_small_pop);
     }
-    reg_every_n = document.getElementById("reg-every-n-slider").value;
+    reg_every_n = reg_every_n_slider.getValue();
   }
 
   let T0_reg_inf  = region_data[2];
@@ -408,40 +512,40 @@ for (let i = 0; i < region_objects.length; i++) {
 }
 
 // select value of reg-every-n
-document.getElementById("reg-every-n-slider").oninput = function() {
-  reg_every_n = this.value;
+reg_every_n_slider.on('slide', function() {
+  reg_every_n = reg_every_n_slider.getValue();
   set_stats(false);
-}
+});
 
 // select value of cric-inf-pct
-document.getElementById("cric-inf-pct-slider").oninput = function() {
-  cric_inf_pct = this.value;
+cric_inf_pct_slider.on('slide', function() {
+  cric_inf_pct = cric_inf_pct_slider.getValue();
   set_stats(false);
-}
+});
 
 // select value of T1-igrowth
-document.getElementById("T1-igrowth-slider").oninput = function() {
-  T1_igrowth = this.value;
+T1_igrowth_slider.on('slide', function() {
+  T1_igrowth = T1_igrowth_slider.getValue();
   set_stats(false);
-}
+});
 
 // select value of T2-igrowth
-document.getElementById("T2-igrowth-slider").oninput = function() {
-  T2_igrowth = this.value;
+T2_igrowth_slider.on('slide', function() {
+  T2_igrowth = T2_igrowth_slider.getValue();
   set_stats(false);
-}
+});
 
-// select value of T3-igrowth
-document.getElementById("T3-igrowth-slider").oninput = function() {
-  T3_igrowth = this.value;
+// select value of T13-igrowth
+T3_igrowth_slider.on('slide', function() {
+  T3_igrowth = T3_igrowth_slider.getValue();
   set_stats(false);
-}
+});
 
 // select value of T4-igrowth
-document.getElementById("T4-igrowth-slider").oninput = function() {
-  T4_igrowth = this.value;
+T4_igrowth_slider.on('slide', function() {
+  T4_igrowth = T4_igrowth_slider.getValue();
   set_stats(false);
-}
+});
 
 </script>
 </body>
