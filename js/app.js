@@ -1,43 +1,43 @@
 // MOHFW data as of 24/03/2020
 // region, population (millions), infected
 let db = [];
-db.push(["Uttar Pradesh",               199.81,  33]);
-db.push(["Maharashtra",                 112.37,  87]);
-db.push(["Bihar",                       104.01,   2]);
-db.push(["West Bengal",                  91.27,   7]);
-db.push(["Madhya Pradesh",               72.63,   7]);
-db.push(["Tamil Nadu",                   72.15,  10]);
-db.push(["Rajasthan",                    68.55,  33]);
-db.push(["Karnataka",                    61.09,  37]);
-db.push(["Gujarat",                      60.43,  29]);
-db.push(["Andhra Pradesh",               49.70,   7]);
-db.push(["Orissa",                       41.97,   2]);
-db.push(["Telangana",                    35.20,  22]);
-db.push(["Kerala",                       33.40,  95]);
-db.push(["Jharkhand",                    32.98,   0]);
-db.push(["Assam",                        31.20,   0]);
-db.push(["Punjab",                       27.75,  21]);
-db.push(["Chhattisgarh",                 25.54,   6]);
-db.push(["Haryana",                      25.35,  26]);
-db.push(["Delhi",                        16.78,  31]);
-db.push(["Jammu and Kashmir",            12.54,   4]);
-db.push(["Uttarakhand",                  10.08,   3]);
-db.push(["Himachal Pradesh",              6.86,   3]);
-db.push(["Tripura",                       3.67,   0]);
-db.push(["Meghalaya",                     2.96,   0]);
-db.push(["Manipur",                       2.85,   0]);
-db.push(["Nagaland",                      1.98,   0]);
-db.push(["Goa",                           1.46,   0]);
-db.push(["Arunachal Pradesh",             1.38,   0]);
-db.push(["Puducherry",                    1.24,   1]);
-db.push(["Mizoram",                       1.09,   0]);
-db.push(["Chandigarh",                    1.05,   5]);
-db.push(["Sikkim",                        0.61,   0]);
 db.push(["Andaman and Nicobar Islands",   0.38,   0]);
+db.push(["Andhra Pradesh",               49.70,   7]);
+db.push(["Arunachal Pradesh",             1.38,   0]);
+db.push(["Assam",                        31.20,   0]);
+db.push(["Bihar",                       104.01,   2]);
+db.push(["Chandigarh",                    1.05,   5]);
+db.push(["Chhattisgarh",                 25.54,   6]);
 db.push(["Dadra and Nagar Haveli",        0.34,   0]);
 db.push(["Daman and Diu",                 0.25,   0]);
-db.push(["Lakshadweep",                   0.06,   0]);
+db.push(["Delhi",                        16.78,  31]);
+db.push(["Goa",                           1.46,   0]);
+db.push(["Gujarat",                      60.43,  29]);
+db.push(["Haryana",                      25.35,  26]);
+db.push(["Himachal Pradesh",              6.86,   3]);
+db.push(["Jammu and Kashmir",            12.54,   4]);
+db.push(["Jharkhand",                    32.98,   0]);
+db.push(["Karnataka",                    61.09,  37]);
+db.push(["Kerala",                       33.40,  95]);
 db.push(["Ladakh",                        0.27,  13]);
+db.push(["Lakshadweep",                   0.06,   0]);
+db.push(["Maharashtra",                 112.37,  87]);
+db.push(["Madhya Pradesh",               72.63,   7]);
+db.push(["Meghalaya",                     2.96,   0]);
+db.push(["Mizoram",                       1.09,   0]);
+db.push(["Manipur",                       2.85,   0]);
+db.push(["Nagaland",                      1.98,   0]);
+db.push(["Orissa",                       41.97,   2]);
+db.push(["Puducherry",                    1.24,   1]);
+db.push(["Punjab",                       27.75,  21]);
+db.push(["Rajasthan",                    68.55,  33]);
+db.push(["Sikkim",                        0.61,   0]);
+db.push(["Tamil Nadu",                   72.15,  10]);
+db.push(["Telangana",                    35.20,  22]);
+db.push(["Tripura",                       3.67,   0]);
+db.push(["Uttar Pradesh",               199.81,  33]);
+db.push(["Uttarakhand",                  10.08,   3]);
+db.push(["West Bengal",                  91.27,   7]);
 
 // extract data for a region from database
 function getData(t_db, t_region) {
@@ -167,6 +167,151 @@ function setRegionStats(t_db, t_state) {
   document.getElementById("T4-critical").innerHTML   = stats.critical.T4;
 }
 
+function setAllStatsRow(t_ctable, t_vals, t_bold) {
+  let new_row = t_ctable.insertRow();
+  for (let i = 0; i < 5; i++) {
+    let new_cell = new_row.insertCell(i);
+    let new_text = document.createTextNode(t_vals[i].toString());
+    new_cell.appendChild(new_text);
+  }
+  if (t_bold) {
+    new_row.classList.add("font-weight-bold");
+  }
+}
+
+// set all statistics for parameters
+function setAllStats(t_db, t_state) {
+  document.getElementById("T1-date2").innerHTML = t_state.T1Date;
+  document.getElementById("T2-date2").innerHTML = t_state.T2Date;
+  document.getElementById("T3-date2").innerHTML = t_state.T3Date;
+  document.getElementById("T4-date2").innerHTML = t_state.T4Date;
+
+  let ctable = document.getElementById("all-stats").getElementsByTagName('tbody')[0];
+  ctable.innerHTML = "";
+
+  let totals = ["Total", 0, 0, 0, 0];
+  let params = getParams(t_state);
+  for (let i = 0; i < t_db.length; i++) {
+    if (t_state.scenario == "moderate") {
+      params.region   = t_db[i][0];
+      params.n        = nDefault(t_db, t_db[i][0]);
+      params.x        = t_state.xSlider.mod;
+      params.T1Growth = t_state.T1Slider.mod;
+      params.T2Growth = t_state.T2Slider.mod;
+      params.T3Growth = t_state.T3Slider.mod;
+      params.T4Growth = t_state.T4Slider.mod;
+    } else {
+      params.region   = t_db[i][0];
+      params.n        = nDefault(t_db, t_db[i][0]);
+      params.x        = t_state.xSlider.wst;
+      params.T1Growth = t_state.T1Slider.wst;
+      params.T2Growth = t_state.T2Slider.wst;
+      params.T3Growth = t_state.T3Slider.wst;
+      params.T4Growth = t_state.T4Slider.wst;
+    }
+    const stats = getStats(t_db, params);
+    if (t_state.category == "infected") {
+      let vals = [];
+      vals.push(t_db[i][0]);
+      vals.push(stats.infected.T1);
+      vals.push(stats.infected.T2);
+      vals.push(stats.infected.T3);
+      vals.push(stats.infected.T4);
+      setAllStatsRow(ctable, vals, false);
+      totals[1] += stats.infected.T1;
+      totals[2] += stats.infected.T2;
+      totals[3] += stats.infected.T3;
+      totals[4] += stats.infected.T4;
+    } else {
+      let vals = [];
+      vals.push(t_db[i][0]);
+      vals.push(stats.critical.T1);
+      vals.push(stats.critical.T2);
+      vals.push(stats.critical.T3);
+      vals.push(stats.critical.T4);
+      setAllStatsRow(ctable, vals, false);
+      totals[1] += stats.critical.T1;
+      totals[2] += stats.critical.T2;
+      totals[3] += stats.critical.T3;
+      totals[4] += stats.critical.T4;
+    }
+  }
+  setAllStatsRow(ctable, totals, true);
+}
+
+function setScenario(t_state, t_val) {
+  if (t_val == "moderate") {
+    t_state.scenario = "moderate";
+    let btnMod = document.getElementById("btn-moderate");
+    if (btnMod.classList.contains("btn-outline-success")) {
+      btnMod.classList.remove("btn-outline-success");
+    }
+    if (!btnMod.classList.contains("btn-success")) {
+      btnMod.classList.add("btn-success");
+    }
+    let btnWst = document.getElementById("btn-worst");
+    if (!btnWst.classList.contains("btn-outline-danger")) {
+      btnWst.classList.add("btn-outline-danger");
+    }
+    if (btnWst.classList.contains("btn-danger")) {
+      btnWst.classList.remove("btn-danger");
+    }
+  } else {
+    t_state.scenario = "worst";
+    let btnMod = document.getElementById("btn-moderate");
+    if (!btnMod.classList.contains("btn-outline-success")) {
+      btnMod.classList.add("btn-outline-success");
+    }
+    if (btnMod.classList.contains("btn-success")) {
+      btnMod.classList.remove("btn-success");
+    }
+    let btnWst = document.getElementById("btn-worst");
+    if (btnWst.classList.contains("btn-outline-danger")) {
+      btnWst.classList.remove("btn-outline-danger");
+    }
+    if (!btnWst.classList.contains("btn-danger")) {
+      btnWst.classList.add("btn-danger");
+    }
+  }
+}
+
+function setCategory(t_state, t_val) {
+  if (t_val == "infected") {
+    t_state.category = "infected";
+    let btnInf = document.getElementById("btn-infected");
+    if (btnInf.classList.contains("btn-outline-primary")) {
+      btnInf.classList.remove("btn-outline-primary");
+    }
+    if (!btnInf.classList.contains("btn-primary")) {
+      btnInf.classList.add("btn-primary");
+    }
+    let btnCri = document.getElementById("btn-critical");
+    if (!btnCri.classList.contains("btn-outline-warning")) {
+      btnCri.classList.add("btn-outline-warning");
+    }
+    if (btnCri.classList.contains("btn-warning")) {
+      btnCri.classList.remove("btn-warning");
+    }
+  } else {
+    t_state.category = "critical";
+    let btnInf = document.getElementById("btn-infected");
+    if (!btnInf.classList.contains("btn-outline-primary")) {
+      btnInf.classList.add("btn-outline-primary");
+    }
+    if (btnInf.classList.contains("btn-primary")) {
+      btnInf.classList.remove("btn-primary");
+    }
+    let btnCri = document.getElementById("btn-critical");
+    if (btnCri.classList.contains("btn-outline-warning")) {
+      btnCri.classList.remove("btn-outline-warning");
+    }
+    if (!btnCri.classList.contains("btn-warning")) {
+      btnCri.classList.add("btn-warning");
+    }
+  }
+}
+
+
 // initialize
 let appState = {
   region   : "None",
@@ -180,11 +325,16 @@ let appState = {
   T1Slider : new AppSlider(  2,   5,  10,  15,  1, "#T1Slider", "T1-slider"),
   T2Slider : new AppSlider( 20,  40,  50,  60,  2, "#T2Slider", "T2-slider"),
   T3Slider : new AppSlider( 60,  80, 120, 150,  5, "#T3Slider", "T3-slider"),
-  T4Slider : new AppSlider(155, 200, 500, 590, 15, "#T4Slider", "T4-slider")
+  T4Slider : new AppSlider(155, 200, 500, 590, 15, "#T4Slider", "T4-slider"),
+  scenario : "none",
+  category : "none"
 };
 
+setScenario(appState, "worst");
+setCategory(appState, "critical");
 resetForRegion(db, appState, "Karnataka");
 setRegionStats(db, appState);
+setAllStats(db, appState);
 
 appState.nSlider.on('slide', function() { setRegionStats(db, appState); });
 appState.xSlider.on('slide', function() { setRegionStats(db, appState); });
@@ -227,3 +377,23 @@ for (let i = 0; i < regionObjects.length; i++) {
     setRegionStats(db, appState);
   });
 }
+
+// set scenario
+document.getElementById("btn-moderate").addEventListener("click", function(e) {
+  setScenario(appState, "moderate");
+  setAllStats(db, appState);
+});
+document.getElementById("btn-worst").addEventListener("click", function(e) {
+  setScenario(appState, "worst");
+  setAllStats(db, appState);
+});
+
+// set category
+document.getElementById("btn-infected").addEventListener("click", function(e) {
+  setCategory(appState, "infected");
+  setAllStats(db, appState);
+});
+document.getElementById("btn-critical").addEventListener("click", function(e) {
+  setCategory(appState, "critical");
+  setAllStats(db, appState);
+});

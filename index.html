@@ -111,15 +111,15 @@
     <div class="col-md-2"></div>
   </div>
 
-  <!-- predicted statistics -->
+  <!-- region statistics -->
   <div class="row">
     <div class="col-md-3"></div>
     <div class="col-md-6 mt-4">
       <div class="text-left">
-        <span><strong><em>Prediction for next four weeks:</em></strong></span>
+        <span><strong><em>Projection for next four weeks:</em></strong></span>
       </div>
-      <div>
-        <table id="stats" class="table table-bordered">
+      <div class="text-center">
+        <table id="region-stats" class="table table-bordered">
           <thead>
             <tr>
               <th class="text-center" scope="col"><div><i class="fa fa-calendar"></i></div></th>
@@ -178,6 +178,50 @@
       </div>
     </div>
     <div class="col-md-3"></div>
+  </div>
+  <hr>
+
+  <div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-6 mt-4">
+      <div class="text-center">
+        <h4><strong>State-Wise Projections</strong></h4>
+      </div>
+    </div>
+    <div class="col-md-3"></div>
+  </div>
+
+  <!-- all statistics -->
+  <div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 mt-4">
+      <div class="d-flex justify-content-between">
+        <div class="btn-group" role="group" aria-label="Scenario">
+          <button id="btn-moderate" type="button" class="btn">Moderate</button>
+          <button id="btn-worst"    type="button" class="btn">Worst</button>
+        </div>
+        <div class="btn-group" role="group" aria-label="Category">
+          <button id="btn-infected" type="button" class="btn">Infected</button>
+          <button id="btn-critical" type="button" class="btn">Critical</button>
+        </div>
+      </div>
+      <div class="text-right mt-2">
+        <table id="all-stats" class="table table-bordered">
+          <thead>
+            <tr>
+              <th class="text-center" scope="col"></th>
+              <th class="text-center" scope="col"><span id="T1-date2">-</span></th>
+              <th class="text-center" scope="col"><span id="T2-date2">-</span></th>
+              <th class="text-center" scope="col"><span id="T3-date2">-</span></th>
+              <th class="text-center" scope="col"><span id="T4-date2">-</span></th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="col-md-2"></div>
   </div>
 </div>
 
