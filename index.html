@@ -54,7 +54,7 @@
         <span>Infections registered* as of</span>
         <span class="font-weight-bold" id="T0-date">-</span>
         <span>:</span>
-        <span id="T0-reg-inf">-</span><br>
+        <span id="T0-registered">-</span><br>
         <a href="https://www.mohfw.gov.in/">*Ministry of Health and Family Welfare, Government of India</a>
       </div>
     </div>
@@ -67,13 +67,13 @@
     <div class="col-md-6 mt-4">
       <div class="text-center">
         <span>Inflation Factor** &nbsp; <strong>n</strong> =</span>
-        <span class="font-weight-bold" id="reg-every-n-text">-</span>
+        <span class="font-weight-bold" id="n-text">-</span>
       </div>
       <div class="text-center">
-        <input id="reg-every-n-slider" type="text" data-slider-id="n-slider"/>
+        <input id="nSlider" type="text" data-slider-id="n-slider"/>
       </div>
       <div class="text-center">
-        <span>**Assumes only one infected person registered out of every<strong>n</strong> infected persons</span>
+        <span>**Assumes one infected person registered out of every <strong>n</strong> infected persons</span>
       </div>
     </div>
     <div class="col-md-3"></div>
@@ -85,9 +85,9 @@
     <div class="col-md-6 mt-4">
       <div class="text-center">
         <span><strong>Estimated</strong> infections as of</span>
-        <span id="T0-date1">-</span>
+        <span id="T0-date2">-</span>
         <span>:</span>
-        <span class="font-weight-bold" id="T0-infected">-</span>
+        <span class="font-weight-bold" id="T0-estimated">-</span>
       </div>
     </div>
     <div class="col-md-3"></div>
@@ -102,10 +102,10 @@
       </div>
       <div class="text-center">
         <span class="font-weight-bold">x =</span>
-        <span class="font-weight-bold" id="cric-inf-pct-text">-</span>
+        <span class="font-weight-bold" id="x-text">-</span>
       </div>
       <div class="text-center">
-        <input id="cric-inf-pct-slider" type="text" data-slider-id="x-slider"/>
+        <input id="xSlider" type="text" data-slider-id="x-slider"/>
       </div>
     </div>
     <div class="col-md-2"></div>
@@ -123,7 +123,7 @@
           <thead>
             <tr>
               <th class="text-center" scope="col"><div><i class="fa fa-calendar"></i></div></th>
-              <th class="text-center" scope="col">Infection Growth from <span id="T0-date2">-</span></th>
+              <th class="text-center" scope="col">Infection Growth from <span id="T0-date3">-</span></th>
               <th class="text-center" scope="col">Growth Factor</th>
               <th class="text-center" scope="col">Infected</th>
               <th class="text-center" scope="col">Critical</th>
@@ -133,36 +133,36 @@
             <tr>
               <th id="T1-date" class="text-center" scope="row">-</th>
               <td class="text-center">
-                <input id="T1-igrowth-slider" type="text" data-slider-id="T1-slider"/>
+                <input id="T1Slider" type="text" data-slider-id="T1-slider"/>
               </td>
-              <td id="T1-igrowth"  class="text-center">-</td>
+              <td id="T1-growth"   class="text-center">-</td>
               <td id="T1-infected" class="text-right">-</td>
               <td id="T1-critical" class="text-right">-</td>
             </tr>
             <tr>
               <th id="T2-date" class="text-center" scope="row">-</th>
               <td class="text-center">
-                <input id="T2-igrowth-slider" type="text" data-slider-id="T2-slider"/>
+                <input id="T2Slider" type="text" data-slider-id="T2-slider"/>
               </td>
-              <td id="T2-igrowth"  class="text-center">-</td>
+              <td id="T2-growth"   class="text-center">-</td>
               <td id="T2-infected" class="text-right">-</td>
               <td id="T2-critical" class="text-right">-</td>
             </tr>
             <tr>
               <th id="T3-date" class="text-center" scope="row">-</th>
               <td class="text-center">
-                <input id="T3-igrowth-slider" type="text" data-slider-id="T3-slider"/>
+                <input id="T3Slider" type="text" data-slider-id="T3-slider"/>
               </td>
-              <td id="T3-igrowth"  class="text-center">-</td>
+              <td id="T3-growth"   class="text-center">-</td>
               <td id="T3-infected" class="text-right">-</td>
               <td id="T3-critical" class="text-right">-</td>
             </tr>
             <tr>
               <th id="T4-date" class="text-center" scope="row">-</th>
               <td class="text-center">
-                <input id="T4-igrowth-slider" type="text" data-slider-id="T4-slider"/>
+                <input id="T4Slider" type="text" data-slider-id="T4-slider"/>
               </td>
-              <td id="T4-igrowth"  class="text-center">-</td>
+              <td id="T4-growth"   class="text-center">-</td>
               <td id="T4-infected" class="text-right">-</td>
               <td id="T4-critical" class="text-right">-</td>
             </tr>
