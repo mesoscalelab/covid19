@@ -1,0 +1,63 @@
+#n-slider .slider-selection {
+	background: lightblue;
+}
+
+#x-slider .slider-selection {
+	background: lightblue;
+}
+
+#x-slider .slider-rangeHighlight.moderate {
+    background: green;
+}
+
+#x-slider .slider-rangeHighlight.worst {
+    background: red;
+}
+
+#T1-slider .slider-selection {
+	background: lightblue;
+}
+
+#T1-slider .slider-rangeHighlight.moderate {
+    background: green;
+}
+
+#T1-slider .slider-rangeHighlight.worst {
+    background: red;
+}
+
+#T2-slider .slider-selection {
+	background: lightblue;
+}
+
+#T2-slider .slider-rangeHighlight.moderate {
+    background: green;
+}
+
+#T2-slider .slider-rangeHighlight.worst {
+    background: red;
+}
+
+#T3-slider .slider-selection {
+	background: lightblue;
+}
+
+#T3-slider .slider-rangeHighlight.moderate {
+    background: green;
+}
+
+#T3-slider .slider-rangeHighlight.worst {
+    background: red;
+}
+
+#T4-slider .slider-selection {
+	background: lightblue;
+}
+
+#T4-slider .slider-rangeHighlight.moderate {
+    background: green;
+}
+
+#T4-slider .slider-rangeHighlight.worst {
+    background: red;
+}
