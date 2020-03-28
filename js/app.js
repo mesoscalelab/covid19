@@ -1,3 +1,66 @@
+/*var rowCount = 0, errorCount = 0, firstError;
+
+
+function buildConfig()
+{
+  return {
+	delimiter: ",",	// auto-detect
+	newline: "",	// auto-detect
+	quoteChar: '"',
+	escapeChar: '"',
+	header: false,
+	transformHeader: undefined,
+	dynamicTyping: false,
+	preview: 0,
+	encoding: "",
+	worker: false,
+	comments: false,
+	step: undefined,
+	complete: function () { console.log("AAAAAAAAAAAAAAAA"); },
+	error: function () { console.log("AAAAAAAAAAAAAAAA"); },
+	download: false,
+	downloadRequestHeaders: undefined,
+	downloadRequestBody: undefined,
+	skipEmptyLines: false,
+	chunk: undefined,
+	fastMode: undefined,
+	beforeFirstChunk: undefined,
+	withCredentials: undefined,
+	transform: undefined,
+	delimitersToGuess: [',', '\t', '|', ';', Papa.RECORD_SEP, Papa.UNIT_SEP]
+};
+}
+
+var config = buildConfig();
+$(function() {
+	$("#fileElem").parse({
+        config: config,
+				before: function(file, inputElem)
+				{
+					console.log("Parsing file...", file);
+				},
+				error: function(err, file)
+				{
+					console.log("ERROR:", err, file);
+					firstError = firstError || err;
+					errorCount++;
+				},
+				complete: function()
+				{
+					printStats("Done with all files");
+				}
+			});
+});
+function printStats(msg)
+{
+	if (msg)
+		console.log(msg);
+	console.log("  Row count:", rowCount);
+	console.log("     Errors:", errorCount);
+	if (errorCount)
+		console.log("First error:", firstError);
+}
+*/
 // MOHFW data as of 24/03/2020
 // region, population (millions), infected
 let db = [];
@@ -39,6 +102,20 @@ db.push(["Uttar Pradesh",               199.81,  33]);
 db.push(["Uttarakhand",                  10.08,   3]);
 db.push(["West Bengal",                  91.27,   7]);
 
+// get default value of n for a region
+function nDefault(t_popMillions) {
+  if (t_popMillions > 10) {
+    return 3;
+  } else {
+    return 2;
+  }
+}
+
+// set db[i][3] = nDefault
+for (let i = 0; i < db.length; i++) {
+  db[i].push(nDefault(db[i][1]));
+}
+
 // extract data for a region from database
 function getData(t_db, t_region) {
   let data = t_db[0];
@@ -48,16 +125,6 @@ function getData(t_db, t_region) {
     }
   }
   return data;
-}
-
-// get default value of n for a region
-function nDefault(t_db, t_region) {
-  const popMillions = getData(t_db, t_region)[1];
-  if (popMillions > 10) {
-    return 3;
-  } else {
-    return 2;
-  }
 }
 
 // slider with stops for moderate and worst case values
@@ -99,7 +166,7 @@ function getParams(t_state) {
 
 function resetForRegion(t_db, t_state, t_region) {
   t_state.region = t_region;
-  t_state.nSlider.setValue(nDefault(t_db, t_region));
+  t_state.nSlider.setValue(getData(t_db, t_region)[3]);
   document.getElementById("region-search").value = t_region;
   document.getElementById("region-list").style.display = "none";
 }
@@ -194,7 +261,7 @@ function setAllStats(t_db, t_state) {
   for (let i = 0; i < t_db.length; i++) {
     if (t_state.scenario == "moderate") {
       params.region   = t_db[i][0];
-      params.n        = nDefault(t_db, t_db[i][0]);
+      params.n        = t_db[i][3];
       params.x        = t_state.xSlider.mod;
       params.T1Growth = t_state.T1Slider.mod;
       params.T2Growth = t_state.T2Slider.mod;
@@ -202,7 +269,7 @@ function setAllStats(t_db, t_state) {
       params.T4Growth = t_state.T4Slider.mod;
     } else {
       params.region   = t_db[i][0];
-      params.n        = nDefault(t_db, t_db[i][0]);
+      params.n        = t_db[i][3];
       params.x        = t_state.xSlider.wst;
       params.T1Growth = t_state.T1Slider.wst;
       params.T2Growth = t_state.T2Slider.wst;
