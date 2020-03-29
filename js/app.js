@@ -24,7 +24,7 @@ class AppSlider extends Slider {
 
 $(function()
 {
-  const dataUrl = "https://raw.githubusercontent.com/mesoscalelab/covid19/master/data/districtwise.csv";
+  const dataUrl = "https://raw.githubusercontent.com/mesoscalelab/covid19/develop/data/districtwise.csv";
   let data      = [];
   let fetched   = false;
   let complete  = results => { data = results.data; fetched = true; }
