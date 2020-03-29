@@ -198,16 +198,16 @@
     <div class="col-md-8 mt-4">
       <div class="d-flex justify-content-between">
         <div class="btn-group" role="group" aria-label="Scenario">
-          <button id="btn-moderate" type="button" class="btn">Moderate</button>
-          <button id="btn-worst"    type="button" class="btn">Worst</button>
+          <button id="btn-moderate" type="button" class="btn btn-success">Moderate</button>
+          <button id="btn-worst"    type="button" class="btn btn-danger">Worst</button>
         </div>
         <div class="btn-group" role="group" aria-label="Category">
-          <button id="btn-infected" type="button" class="btn">Infected</button>
-          <button id="btn-critical" type="button" class="btn">Critical</button>
+          <button id="btn-infected" type="button" class="btn btn-primary">Infected</button>
+          <button id="btn-critical" type="button" class="btn btn-warning">Critical</button>
         </div>
       </div>
       <div class="text-right mt-2">
-        <table id="all-stats" class="table table-bordered">
+        <table class="table table-bordered">
           <thead>
             <tr>
               <th class="text-center" scope="col"></th>
@@ -217,7 +217,7 @@
               <th class="text-center" scope="col"><span id="T4-date2">-</span></th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="all-stats">
           </tbody>
         </table>
       </div>
