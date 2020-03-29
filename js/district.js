@@ -40,6 +40,7 @@ $(function()
 });
 
 // data has 4 columns: district, state, infected, n
+// sort --field-separator=',' --dictionary-order --key=2 --key=1 unsorted.csv > sorted.csv
 function addColumns(data)
 {
 }
@@ -165,9 +166,9 @@ function setScenario(t_state, t_val) {
 }
 
 function setCategory(t_state, t_val) {
-  $("#btn".concat(t_state.category)).removeClass("checked");
+  $("#btn-".concat(t_state.category)).removeClass("btn-dark");
   t_state.category = t_val;
-  $("#btn".concat(t_state.category)).addClass("checked");
+  $("#btn-".concat(t_state.category)).addClass("btn-dark");
 }
 
 // set region statistics for parameters
@@ -320,7 +321,7 @@ function setAllStats(t_db, t_state) {
   for (let i = 0; i < t_db.length; i++) {
     if (t_db[i][1] != dstate) {
       setAllStatsRow(subtotals, true);
-      for (let i = 0; i < totals.length; i++) {
+      for (let i = 1; i < totals.length; i++) {
         subtotals[i] = 0;
       }
       $("#all-stats").append($("<tr>")
