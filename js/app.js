@@ -113,12 +113,12 @@ function run(t_db, t_state)
   });
 
   // slider button movement
-  t_state.nSlider.on('slide', function() { setRegionStats(t_db, t_state); });
-  t_state.xSlider.on('slide', function() { setRegionStats(t_db, t_state); });
-  t_state.T1Slider.on('slide', function() { setRegionStats(t_db, t_state); });
-  t_state.T2Slider.on('slide', function() { setRegionStats(t_db, t_state); });
-  t_state.T3Slider.on('slide', function() { setRegionStats(t_db, t_state); });
-  t_state.T4Slider.on('slide', function() { setRegionStats(t_db, t_state); });
+  t_state.nSlider.on('change', function() { setRegionStats(t_db, t_state); });
+  t_state.xSlider.on('change', function() { setRegionStats(t_db, t_state); });
+  t_state.T1Slider.on('change', function() { setRegionStats(t_db, t_state); });
+  t_state.T2Slider.on('change', function() { setRegionStats(t_db, t_state); });
+  t_state.T3Slider.on('change', function() { setRegionStats(t_db, t_state); });
+  t_state.T4Slider.on('change', function() { setRegionStats(t_db, t_state); });
 
   // scenario buttons
   $('#btn-moderate').click(function(e) {
