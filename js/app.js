@@ -93,8 +93,8 @@ function run(t_db, t_state)
   for (let i = 0; i < regionObjects.length; i++) {
     regionObjects[i].addEventListener("click", function(e) {
       const regionName = e.target.textContent;
-      resetForRegion(t_db, appState, regionName);
-      setRegionStats(t_db, appState);
+      resetForRegion(t_db, t_state, regionName);
+      setRegionStats(t_db, t_state);
     });
   }
 
