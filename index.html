@@ -33,7 +33,7 @@
     <div class="col-md-4"></div>
     <div class="col-md-4">
       <div class="text-center mb-2">
-        <span>Select State or Union Territory: </span>
+        <span>Select District: </span>
       </div>
       <div class="input-group">
         <div class="input-group-prepend">
@@ -114,8 +114,8 @@
 
   <!-- region statistics -->
   <div class="row">
-    <div class="col-md-3"></div>
-    <div class="col-md-6 mt-4">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 mt-4">
       <div class="text-left">
         <span><strong><em>Projection for next four weeks:</em></strong></span>
       </div>
@@ -124,10 +124,12 @@
           <thead>
             <tr>
               <th class="text-center" scope="col"><div><i class="fa fa-calendar"></i></div></th>
-              <th class="text-center" scope="col">Infection Growth from <span id="T0-date3">-</span></th>
-              <th class="text-center" scope="col">Growth Factor</th>
-              <th class="text-center" scope="col">Infected</th>
-              <th class="text-center" scope="col">Critical</th>
+              <th class="text-center" scope="col"><small><strong>Infection Growth from <span id="T0-date3">-</span></strong></small></th>
+              <th class="text-center" scope="col"><small><strong>Growth Factor</strong></small></th>
+              <th class="text-center" scope="col"><small><strong>Infected</strong></small></th>
+              <th class="text-center" scope="col"><small><strong>Critical</strong></small></th>
+              <th class="text-center" scope="col"><small><strong>Ventilators</strong></small></th>
+              <th class="text-center" scope="col"><small><strong>Pumps</strong></small></th>
             </tr>
           </thead>
           <tbody>
@@ -139,6 +141,8 @@
               <td id="T1-growth"   class="text-center">-</td>
               <td id="T1-infected" class="text-right">-</td>
               <td id="T1-critical" class="text-right">-</td>
+              <td id="T1-ventilators" class="text-right">-</td>
+              <td id="T1-pumps" class="text-right">-</td>
             </tr>
             <tr>
               <th id="T2-date" class="text-center" scope="row">-</th>
@@ -148,6 +152,8 @@
               <td id="T2-growth"   class="text-center">-</td>
               <td id="T2-infected" class="text-right">-</td>
               <td id="T2-critical" class="text-right">-</td>
+              <td id="T2-ventilators" class="text-right">-</td>
+              <td id="T2-pumps" class="text-right">-</td>
             </tr>
             <tr>
               <th id="T3-date" class="text-center" scope="row">-</th>
@@ -157,6 +163,8 @@
               <td id="T3-growth"   class="text-center">-</td>
               <td id="T3-infected" class="text-right">-</td>
               <td id="T3-critical" class="text-right">-</td>
+              <td id="T3-ventilators" class="text-right">-</td>
+              <td id="T3-pumps" class="text-right">-</td>
             </tr>
             <tr>
               <th id="T4-date" class="text-center" scope="row">-</th>
@@ -166,6 +174,8 @@
               <td id="T4-growth"   class="text-center">-</td>
               <td id="T4-infected" class="text-right">-</td>
               <td id="T4-critical" class="text-right">-</td>
+              <td id="T4-ventilators" class="text-right">-</td>
+              <td id="T4-pumps" class="text-right">-</td>
             </tr>
           </tbody>
         </table>
@@ -178,7 +188,7 @@
         <span>stops, respectively, on the sliders</span>
       </div>
     </div>
-    <div class="col-md-3"></div>
+    <div class="col-md-2"></div>
   </div>
   <hr>
 
@@ -186,7 +196,7 @@
     <div class="col-md-3"></div>
     <div class="col-md-6 mt-4">
       <div class="text-center">
-        <h4><strong>State-Wise Projections</strong></h4>
+        <h4><strong>District-Wise Projections</strong></h4>
       </div>
     </div>
     <div class="col-md-3"></div>
@@ -202,8 +212,10 @@
           <button id="btn-worst"    type="button" class="btn btn-danger">Worst</button>
         </div>
         <div class="btn-group" role="group" aria-label="Category">
-          <button id="btn-infected" type="button" class="btn btn-primary">Infected</button>
-          <button id="btn-critical" type="button" class="btn btn-warning">Critical</button>
+          <button id="btn-infected" type="button" class="btn btn-secondary">Infected</button>
+          <button id="btn-critical" type="button" class="btn btn-secondary">Critical</button>
+          <button id="btn-ventilators" type="button" class="btn btn-secondary">Ventilators</button>
+          <button id="btn-pumps" type="button" class="btn btn-secondary">Pumps</button>
         </div>
       </div>
       <div class="text-right mt-2">
