@@ -309,8 +309,8 @@ function setAllStats(t_db, t_state) {
 
   let totals = ["Pan-India Total", 0, 0, 0, 0];
   let subtotals = ["Total", 0, 0, 0, 0];
-  let params = getParams(t_state);
   let dstate = t_db[0][1];
+  let params = getParams(t_state);
   $("#all-stats").append($("<tr>")
     .append($("<td>")
       .addClass("text-left")
@@ -320,6 +320,9 @@ function setAllStats(t_db, t_state) {
   for (let i = 0; i < t_db.length; i++) {
     if (t_db[i][1] != dstate) {
       setAllStatsRow(subtotals, true);
+      for (let i = 0; i < totals.length; i++) {
+        subtotals[i] = 0;
+      }
       $("#all-stats").append($("<tr>")
         .append($("<td>")
           .addClass("text-left")
