@@ -36,7 +36,7 @@ $(function()
     T4Slider : new AppSlider(120, 150, 250, 300, 10, "#T4Slider", "T4-slider"),
   };
 
-  resetForRegion(appConfig, model.calcDistrictID("Bengaluru", "Karnataka"));
+  resetForRegion(appConfig, "Karnataka");
   setRegionStats(appConfig);
   run(appConfig);
 });
@@ -44,9 +44,9 @@ $(function()
 function run(config)
 {
   // fill region list from data
-  for (let districtID of model.allDistrictIDs) {
+  for (let state of model.allStates) {
     let entry = document.createElement('li');
-    entry.appendChild(document.createTextNode(districtID));
+    entry.appendChild(document.createTextNode(state));
     entry.classList.add("region-name");
     entry.classList.add("list-group-item");
     $('#region-list').append(entry);
@@ -58,7 +58,7 @@ function run(config)
     regionObjects[i].addEventListener("click", function(e) {
       const regionName = e.target.textContent;
       resetForRegion(config, regionName);
-      setRegionStats(config, t_state);
+      setRegionStats(config);
     });
   }
 
@@ -88,7 +88,7 @@ function run(config)
 // set region statistics for parameters
 function setRegionStats(config) {
   const params = getParams(config);
-  const stats = model.districtIDStats(params.region, params);
+  const stats = model.stateStats(params.region, params);
   const ventilators = model.itemStats("ventilators", stats.critical);
   const pumps = model.itemStats("pumps", stats.critical);
 
@@ -143,11 +143,10 @@ function getParams(config) {
   return params;
 }
 
-function resetForRegion(config, districtID) {
-  config.region = districtID;
-  const dinfo = model.districtIDInfo(districtID);
-  const sinfo = model.stateInfo(dinfo.state);
+function resetForRegion(config, state) {
+  config.region = state;
+  const sinfo = model.stateInfo(state);
   config.nSlider.setValue(sinfo.n);
-  $("#region-search").val(districtID);
+  $("#region-search").val(state);
   $("#region-list").css("display", "none");
 }

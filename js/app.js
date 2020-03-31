@@ -1,341 +1,294 @@
-// slider with stops for moderate and worst case values
-class AppSlider extends Slider {
-  constructor(min, mod, wst, max, step, id, dataid) {
-    // extent of stop markers
-    const modStart = mod - 0.5 * step;
-    const modEnd   = mod + 0.5 * step; 
-    const wstStart = wst - 0.5 * step; 
-    const wstEnd   = wst + 0.5 * step;
-
-    super(id, {
-      id   : dataid,
-      min  : min,
-      max  : max,
-      step : step,
-      value: wst,
-      rangeHighlights: [{ "start": modStart, "end": modEnd, "class": "moderate" },
-                        { "start": wstStart, "end": wstEnd, "class": "worst"    }]
-    });
-
-    this.mod = mod; // moderate case
-    this.wst = wst; // worst case
+class AppConfig
+{
+  constructor()
+  {
+    this.category = "carriers";
   }
-}
+};
+
+let model = new Covid19Model();
+let appConfig = new AppConfig();
 
 $(function()
 {
-  const dataUrl = "https://raw.githubusercontent.com/mesoscalelab/covid19/master/data/statewise.csv";
-  let data      = [];
-  let fetched   = false;
-  let complete  = results => { data = results.data; fetched = true; }
-  Papa.parse(dataUrl, { delimiter : ",", skipEmptyLines : true, complete  : complete, download  : true});
-  (function fetching() {
-    if (fetched) {
-      addColumns(data);
-      start(data);
-    } else {
-      setTimeout(fetching, 50);
-    }
-  })();
-});
-
-// data has 3 columns: state, population (millions), infected
-// add a 4th column containing the default inflation factor n
-function addColumns(data)
-{
-  for (let i = 0; i < data.length; i++) {
-    data[i].push((data[i][1] > 10) ? 3 : 2);
-  }
-}
-
-function start(data)
-{
-  // create default app state
-  let appState = {
-    region   : "None",
-    T0Date   : "24/03/2020",
-    T1Date   : "31/03/2020",
-    T2Date   : "07/04/2020",
-    T3Date   : "14/04/2020",
-    T4Date   : "21/04/2020",
-    nSlider  : new AppSlider(  1,  -5,  -5,  10,  1,  "#nSlider",  "n-slider"),
-    xSlider  : new AppSlider(  0,  10,  15,  20,  1,  "#xSlider",  "x-slider"),
-    T1Slider : new AppSlider(  2,   5,  10,  15,  1, "#T1Slider", "T1-slider"),
-    T2Slider : new AppSlider( 20,  40,  50,  60,  2, "#T2Slider", "T2-slider"),
-    T3Slider : new AppSlider( 60,  80, 120, 150,  5, "#T3Slider", "T3-slider"),
-    T4Slider : new AppSlider(155, 200, 500, 590, 15, "#T4Slider", "T4-slider"),
-    scenario : "none",
-    category : "none"
-  };
-
-  setScenario(appState, "worst");
-  setCategory(appState, "critical");
-  resetForRegion(data, appState, "Karnataka");
-  setRegionStats(data, appState);
-  setAllStats(data, appState);
-
-  run(data, appState);
-}
-
-function run(t_db, t_state)
-{
-  // fill region list from data
-  for (let i = 0; i < t_db.length; i++) {
-    let entry = document.createElement('li');
-    entry.appendChild(document.createTextNode(t_db[i][0]));
-    entry.classList.add("region-name");
-    entry.classList.add("list-group-item");
-    $('#region-list').append(entry);
-  }
-
-  // reset app state when region is changed 
-  let regionObjects = $('.region-name');
-  for (let i = 0; i < regionObjects.length; i++) {
-    regionObjects[i].addEventListener("click", function(e) {
-      const regionName = e.target.textContent;
-      resetForRegion(t_db, t_state, regionName);
-      setRegionStats(t_db, t_state);
-    });
-  }
-
-  // when a string in typed in region search box,
-  // show list of region names containing the string
-  $('#region-search').keyup(function(e) {
-    let value = $(this).val().toLowerCase();
-    if (value == "") {
-      $('#region-list').css('display', "none");
-    } else {
-      $('#region-list').css('display', "block");
-    }
-    $("#region-list li").filter(function() {
-      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-    });
-  });
-
-  // slider button movement
-  t_state.nSlider.on('change', function() { setRegionStats(t_db, t_state); });
-  t_state.xSlider.on('change', function() { setRegionStats(t_db, t_state); });
-  t_state.T1Slider.on('change', function() { setRegionStats(t_db, t_state); });
-  t_state.T2Slider.on('change', function() { setRegionStats(t_db, t_state); });
-  t_state.T3Slider.on('change', function() { setRegionStats(t_db, t_state); });
-  t_state.T4Slider.on('change', function() { setRegionStats(t_db, t_state); });
-
-  // scenario buttons
-  $('#btn-moderate').click(function(e) {
-    setScenario(t_state, "moderate");
-    setAllStats(t_db, t_state);
-  });
-
-  $('#btn-worst').click(function(e) {
-    setScenario(t_state, "worst");
-    setAllStats(t_db, t_state);
-  });
+  setCategory(appConfig, "carriers");
+  setAllStats(appConfig);
 
   // category buttons
-  $('#btn-infected').click(function(e) {
-    setCategory(t_state, "infected");
-    setAllStats(t_db, t_state);
+  $('#btn-carriers').click(function(e) {
+    setCategory(appConfig, "carriers");
+    setAllStats(appConfig);
   });
 
   $('#btn-critical').click(function(e) {
-    setCategory(t_state, "critical");
-    setAllStats(t_db, t_state);
+    setCategory(appConfig, "critical");
+    setAllStats(appConfig);
+  });
+
+  $('#btn-ventilators').click(function(e) {
+    setCategory(appConfig, "ventilators");
+    setAllStats(appConfig);
+  });
+
+  $('#btn-pumps').click(function(e) {
+    setCategory(appConfig, "pumps");
+    setAllStats(appConfig);
+  }); 
+});
+
+function collapseRows(idValue)
+{
+  $("#".concat(idValue)).each(function() {
+    $(".".concat(idValue)).each(function() {
+      $(this).addClass("collapse");
+    });
+    $(this).html("+");
   });
 }
 
-function setScenario(t_state, t_val) {
-  t_state.scenario = t_val;
-  if (t_val == "moderate") {
-    $("#btn-moderate").removeClass("btn-outline-success");
-    $("#btn-moderate").addClass("btn-success");
-    $("#btn-worst").removeClass("btn-danger");
-    $("#btn-worst").addClass("btn-outline-danger");
-  } else {
-    $("#btn-moderate").addClass("btn-outline-success");
-    $("#btn-moderate").removeClass("btn-success");
-    $("#btn-worst").addClass("btn-danger");
-    $("#btn-worst").removeClass("btn-outline-danger");
-  }
-}
-
-function setCategory(t_state, t_val) {
-  t_state.category = t_val;
-  if (t_val == "infected") {
-    $("#btn-infected").removeClass("btn-outline-primary");
-    $("#btn-infected").addClass("btn-primary");
-    $("#btn-critical").removeClass("btn-warning");
-    $("#btn-critical").addClass("btn-outline-warning");
-  } else {
-    $("#btn-infected").addClass("btn-outline-primary");
-    $("#btn-infected").removeClass("btn-primary");
-    $("#btn-critical").addClass("btn-warning");
-    $("#btn-critical").removeClass("btn-outline-warning");
-  }
-}
-
-// set region statistics for parameters
-function setRegionStats(t_db, t_state) {
-  const params = getParams(t_state);
-  const stats = getStats(t_db, params);
-
-  $('#n-text').html(params.n);
-  $('#x-text').html(Math.floor(params.x));
-  $('#T0-date').html(t_state.T0Date);
-  $('#T0-registered').html(stats.registered);
-  $('#T0-date2').html(t_state.T0Date);
-  $('#T0-estimated').html(stats.estimated);
-  $('#T0-date3').html(t_state.T0Date);
-
-  $('#T1-date').html(t_state.T1Date);
-  $('#T1-growth').html(Math.floor(params.T1Growth).toString().concat("x"));
-  $('#T1-infected').html(stats.infected.T1);
-  $('#T1-critical').html(stats.critical.T1);
-
-  $('#T2-date').html(t_state.T2Date);
-  $('#T2-growth').html(Math.floor(params.T2Growth).toString().concat("x"));
-  $('#T2-infected').html(stats.infected.T2);
-  $('#T2-critical').html(stats.critical.T2);
-
-  $('#T3-date').html(t_state.T3Date);
-  $('#T3-growth').html(Math.floor(params.T3Growth).toString().concat("x"));
-  $('#T3-infected').html(stats.infected.T3);
-  $('#T3-critical').html(stats.critical.T3);
-
-  $('#T4-date').html(t_state.T4Date);
-  $('#T4-growth').html(Math.floor(params.T4Growth).toString().concat("x"));
-  $('#T4-infected').html(stats.infected.T4);
-  $('#T4-critical').html(stats.critical.T4);
-}
-
-// extract data for a region from database
-function getData(t_db, t_region) {
-  let data = t_db[0];
-  for (let i = 0; i < t_db.length; i++) {
-    if (t_db[i][0] == t_region) {
-      data = t_db[i];
-    }
-  }
-  return data;
-}
-
-// extract model parameters from app state
-function getParams(t_state) {
-  const params = {
-    region   : t_state.region,
-    n        : t_state.nSlider.getValue(),
-    x        : t_state.xSlider.getValue(),
-    T1Growth : t_state.T1Slider.getValue(),
-    T2Growth : t_state.T2Slider.getValue(),
-    T3Growth : t_state.T3Slider.getValue(),
-    T4Growth : t_state.T4Slider.getValue()
-  };
-  return params;
-}
-
-function resetForRegion(t_db, t_state, t_region) {
-  t_state.region = t_region;
-  t_state.nSlider.setValue(getData(t_db, t_region)[3]);
-  $("#region-search").val(t_region);
-  $("#region-list").css("display", "none");
-}
-
-// calculate statistics for given set of model parameters
-function getStats(t_db, t_params)
+function expandRows(idValue)
 {
-  const data          = getData(t_db, t_params.region);
-  const pop           = Math.floor(1000000 * data[1]);
-  const T0InfectedReg = data[2];
-  const T0InfectedEst = Math.min(Math.floor(Math.max(T0InfectedReg, 1) * t_params.n), pop);
-
-  const tmpInfected = {
-    T1 : Math.min(Math.floor(T0InfectedEst * t_params.T1Growth), pop),
-    T2 : Math.min(Math.floor(T0InfectedEst * t_params.T2Growth), pop),
-    T3 : Math.min(Math.floor(T0InfectedEst * t_params.T3Growth), pop),
-    T4 : Math.min(Math.floor(T0InfectedEst * t_params.T4Growth), pop),
-  };
-  const tmpCritical = {
-    T1 : Math.min(Math.floor(tmpInfected.T1 * t_params.x * 0.01), pop),
-    T2 : Math.min(Math.floor(tmpInfected.T2 * t_params.x * 0.01), pop),
-    T3 : Math.min(Math.floor(tmpInfected.T3 * t_params.x * 0.01), pop),
-    T4 : Math.min(Math.floor(tmpInfected.T4 * t_params.x * 0.01), pop),
-  };
-  const stats = {
-    registered : T0InfectedReg,
-    estimated  : T0InfectedEst,
-    infected   : tmpInfected,
-    critical   : tmpCritical
-  };
-  return stats;
+  $("#".concat(idValue)).each(function() {
+    $(".".concat(idValue)).each(function() {
+      $(this).removeClass("collapse");
+    });
+    $(this).html("-");
+  });
 }
 
-function setAllStatsRow(t_ctable, t_vals, t_bold) {
-  let new_row = t_ctable.insertRow();
-  for (let i = 0; i < 5; i++) {
-    let new_cell = new_row.insertCell(i);
-    let new_text = document.createTextNode(t_vals[i].toString());
-    new_cell.appendChild(new_text);
+function toggleRows(idValue)
+{
+  $("#".concat(idValue)).each(function() {
+    $(this).click(function(e) {
+      $(".".concat(idValue)).each(function() {
+        if ($(this).hasClass("collapse")) {
+          $(this).removeClass("collapse");
+        } else {
+          $(this).addClass("collapse");
+        }
+      });
+      if ($(this).html() === "+") {
+        console.log("AAAAAAAAAAAAAAAAA", idValue);
+        $(this).html("-");
+      } else {
+        $(this).html("+");
+      }
+    });
+  });
+}
+
+function setAllStats(config)
+{
+  $("#all-stats").html("");
+  createHeader();
+
+  let row = new Array(10).fill("");
+
+  row.fill("");
+  createRow(row);
+
+  if (true) {
+    const moderateStats = model.countryStats(model.moderateParams);
+    const worstStats = model.countryStats(model.worstParams);
+    row.fill("")
+    row[1] = "India"; 
+    fillRowValuesWithStats(appConfig, moderateStats, worstStats, row);
+    createRow(row, true);
   }
-  if (t_bold) {
-    new_row.classList.add("font-weight-bold");
+
+  row.fill("");
+  createRow(row);
+
+  row.fill("");
+  row[1] = "Top 5 Affected States";
+  createRow(row, true, "top-states-stats");
+
+  let topStates = model.calcTopAffectedStates(5);
+  for (let i = 0; i < topStates.length; i++) {
+    const state = topStates[i]; 
+    const moderateStats = model.stateStats(state, model.moderateParams);
+    const worstStats = model.stateStats(state, model.worstParams);
+    row.fill("");
+    row[1] = state; 
+    fillRowValuesWithStats(appConfig, moderateStats, worstStats, row);
+    createRow(row, false, "", "top-states-stats");
+  }
+
+  row.fill("");
+  createRow(row);
+
+  row.fill("");
+  row[1] = "Top 10 Affected Districts";
+  createRow(row, true, "top-districts-stats");
+
+  let topDistrictIDs = model.calcTopAffectedDistrictIDs(10);
+  for (let i = 0; i < topDistrictIDs.length; i++) {
+    const districtID = topDistrictIDs[i]; 
+    const moderateStats = model.districtIDStats(districtID, model.moderateParams);
+    const worstStats = model.districtIDStats(districtID, model.worstParams);
+    const dinfo = model.districtIDInfo(districtID);
+    row.fill("")
+    row[1] = dinfo.district.concat(", ").concat(dinfo.state); 
+    fillRowValuesWithStats(appConfig, moderateStats, worstStats, row);
+    createRow(row, false, "", "top-districts-stats");
+  }
+
+  row.fill("");
+  createRow(row);
+
+  row.fill("");
+  createRow(row);
+
+  row.fill("");
+  row[1] = "District-Wise Projections";
+  createRow(row, true);
+
+  for (let [state, sinfo] of model.statesInfo) {
+    const moderateStatsState = model.stateStats(state, model.moderateParams);
+    const worstStatsState = model.stateStats(state, model.worstParams);
+    row.fill("");
+    row[1] = state; 
+    fillRowValuesWithStats(appConfig, moderateStatsState, worstStatsState, row);
+    const stateIDValue = state.replace(/\s/g, "").concat("-stats");
+    createRow(row, true, stateIDValue);
+    for (let i = 0; i < sinfo.districtIDs.length; i++) {
+      const districtID = sinfo.districtIDs[i]; 
+      const moderateStats = model.districtIDStats(districtID, model.moderateParams);
+      const worstStats = model.districtIDStats(districtID, model.worstParams);
+      const dinfo = model.districtIDInfo(districtID);
+      row.fill("")
+      row[1] = dinfo.district; 
+      fillRowValuesWithStats(appConfig, moderateStats, worstStats, row);
+      createRow(row, false, "", stateIDValue);
+    }
+    row.fill("");
+    createRow(row, false, "", stateIDValue);
+  }
+
+  // collapse events
+  expandRows("top-states-stats");
+  toggleRows("top-states-stats");
+
+  expandRows("top-districts-stats");
+  toggleRows("top-districts-stats");
+
+  for (let state of model.allStates) {
+    const stateIDValue = state.replace(/\s/g, "").concat("-stats");
+    collapseRows(stateIDValue);
+    toggleRows(stateIDValue);
   }
 }
 
-// set all statistics for parameters
-function setAllStats(t_db, t_state) {
-  $("#T1-date2").html(t_state.T1Date);
-  $("#T2-date2").html(t_state.T2Date);
-  $("#T3-date2").html(t_state.T3Date);
-  $("#T4-date2").html(t_state.T4Date);
+function fillRowValuesWithStats(config, moderateStats, worstStats, row)
+{
+  switch (config.category) {
+    case "carriers":
+      row[2] = moderateStats.carriers.t1;
+      row[4] = moderateStats.carriers.t2;
+      row[6] = moderateStats.carriers.t3;
+      row[8] = moderateStats.carriers.t4;
+      row[3] = worstStats.carriers.t1;
+      row[5] = worstStats.carriers.t2;
+      row[7] = worstStats.carriers.t3;
+      row[9] = worstStats.carriers.t4;
+    break;
+    case "critical":
+      row[2] = moderateStats.critical.t1;
+      row[4] = moderateStats.critical.t2;
+      row[6] = moderateStats.critical.t3;
+      row[8] = moderateStats.critical.t4;
+      row[3] = worstStats.critical.t1;
+      row[5] = worstStats.critical.t2;
+      row[7] = worstStats.critical.t3;
+      row[9] = worstStats.critical.t4;
+    break;
+    default:
+      const moderateItemStats = model.itemStats(config.category, moderateStats.critical);
+      const worstItemStats = model.itemStats(config.category, worstStats.critical);
+      row[2] = moderateItemStats.t1;
+      row[4] = moderateItemStats.t2;
+      row[6] = moderateItemStats.t3;
+      row[8] = moderateItemStats.t4;
+      row[3] = worstItemStats.t1;
+      row[5] = worstItemStats.t2;
+      row[7] = worstItemStats.t3;
+      row[9] = worstItemStats.t4;
+    break;
+  }
+}
 
-  let ctable = document.getElementById("all-stats");
-  ctable.innerHTML = "";
-
-  let totals = ["Total", 0, 0, 0, 0];
-  let params = getParams(t_state);
-  for (let i = 0; i < t_db.length; i++) {
-    if (t_state.scenario == "moderate") {
-      params.region   = t_db[i][0];
-      params.n        = t_db[i][3];
-      params.x        = t_state.xSlider.mod;
-      params.T1Growth = t_state.T1Slider.mod;
-      params.T2Growth = t_state.T2Slider.mod;
-      params.T3Growth = t_state.T3Slider.mod;
-      params.T4Growth = t_state.T4Slider.mod;
-    } else {
-      params.region   = t_db[i][0];
-      params.n        = t_db[i][3];
-      params.x        = t_state.xSlider.wst;
-      params.T1Growth = t_state.T1Slider.wst;
-      params.T2Growth = t_state.T2Slider.wst;
-      params.T3Growth = t_state.T3Slider.wst;
-      params.T4Growth = t_state.T4Slider.wst;
+function createHeader() {
+  let newRow = document.getElementById("all-stats").insertRow();
+  for (let i = 0; i < 4; i++) {
+    let newCell = newRow.insertCell(i);
+    let date = "";
+    switch (i) {
+      case 0 : date = model.dates.t1; break;
+      case 1 : date = model.dates.t2; break;
+      case 2 : date = model.dates.t3; break;
+      case 3 : date = model.dates.t4; break;
     }
-    const stats = getStats(t_db, params);
-    if (t_state.category == "infected") {
-      let vals = [];
-      vals.push(t_db[i][0]);
-      vals.push(stats.infected.T1);
-      vals.push(stats.infected.T2);
-      vals.push(stats.infected.T3);
-      vals.push(stats.infected.T4);
-      setAllStatsRow(ctable, vals, false);
-      totals[1] += stats.infected.T1;
-      totals[2] += stats.infected.T2;
-      totals[3] += stats.infected.T3;
-      totals[4] += stats.infected.T4;
-    } else {
-      let vals = [];
-      vals.push(t_db[i][0]);
-      vals.push(stats.critical.T1);
-      vals.push(stats.critical.T2);
-      vals.push(stats.critical.T3);
-      vals.push(stats.critical.T4);
-      setAllStatsRow(ctable, vals, false);
-      totals[1] += stats.critical.T1;
-      totals[2] += stats.critical.T2;
-      totals[3] += stats.critical.T3;
-      totals[4] += stats.critical.T4;
+    let newText = document.createTextNode(date);
+    newCell.appendChild(newText);
+    let att = document.createAttribute("colspan");
+    att.value = "2";
+    newCell.setAttributeNode(att);
+  }
+  for (let i = 0; i < 2; i++) {
+    let newCell = newRow.insertCell(i);
+    let newText = document.createTextNode("");
+    newCell.appendChild(newText);
+    let att = document.createAttribute("colspan");
+    att.value = "1";
+    newCell.setAttributeNode(att);
+  }
+  newRow.classList.add("font-weight-bold");
+}
+
+function createRow(rowValues, makeBold = false, idValue = "", classValues = "") {
+  let nonZeroValue = false;
+  for (i = 2; i < rowValues.length; i++) {
+    if (rowValues[i] != 0 || rowValues[i] === "") {
+      nonZeroValue = true;
     }
   }
-  setAllStatsRow(ctable, totals, true);
+  if (nonZeroValue == false) {
+    return;
+  }
+  let newRow = document.getElementById("all-stats").insertRow();
+  let startCell = 0;
+  if (!(idValue === "")) {
+    let newCell = newRow.insertCell(0);
+    let newText = document.createTextNode("+");
+    newCell.appendChild(newText);
+    newCell.setAttribute("id", idValue);
+    startCell = 1;
+  }
+  for (let i = startCell; i < rowValues.length; i++) {
+    let newCell = newRow.insertCell(i);
+    let newText = document.createTextNode(rowValues[i].toString());
+    newCell.appendChild(newText);
+    if (i == 1) {
+      newCell.classList.add("text-left");
+    }
+    if (i > 1 && !(rowValues[2] === "")) {
+      if (0 == (i % 2)) {
+        newCell.classList.add("table-success");
+      } else {
+        newCell.classList.add("table-danger");
+      }
+    }
+  }
+  if (makeBold) {
+    newRow.classList.add("font-weight-bold");
+  }
+  if (classValues != "") {
+    newRow.classList.add(classValues);
+  }
+}
+
+function setCategory(config, value) {
+  $("#btn-".concat(config.category)).removeClass("btn-dark");
+  config.category = value;
+  $("#btn-".concat(config.category)).addClass("btn-dark");
 }
