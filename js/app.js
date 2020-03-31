@@ -68,7 +68,6 @@ function toggleRows(idValue)
         }
       });
       if ($(this).html() === "+") {
-        console.log("AAAAAAAAAAAAAAAAA", idValue);
         $(this).html("-");
       } else {
         $(this).html("+");
@@ -94,6 +93,13 @@ function setAllStats(config)
     row[1] = "India"; 
     fillRowValuesWithStats(appConfig, moderateStats, worstStats, row);
     createRow(row, true);
+
+    $(".t0-text").each(function() {
+      $(this).html(model.dates.t0);
+    });
+
+    $("#t0-confirmed").html(worstStats.t0Confirmed);
+    $("#t0-estimated").html(worstStats.t0Estimated);
   }
 
   row.fill("");
@@ -273,9 +279,9 @@ function createRow(rowValues, makeBold = false, idValue = "", classValues = "") 
     }
     if (i > 1 && !(rowValues[2] === "")) {
       if (0 == (i % 2)) {
-        newCell.classList.add("table-success");
+        newCell.style.backgroundColor = "honeydew";
       } else {
-        newCell.classList.add("table-danger");
+        newCell.style.backgroundColor = "mistyrose";
       }
     }
   }
