@@ -60,11 +60,21 @@
 <div class="row">
   <div class="col-md-12">
     <div class="text-right mb-4">
-      <div class="btn-group" role="group" aria-label="Category">
-        <button id="btn-carriers" type="button" class="btn btn-secondary">Carriers</button>
-        <button id="btn-critical" type="button" class="btn btn-secondary">Critical</button>
-        <button id="btn-ventilators" type="button" class="btn btn-secondary">Ventilators</button>
-        <button id="btn-pumps" type="button" class="btn btn-secondary">Pumps</button>
+      <div class="d-flex justify-content-between">
+        <div class="text-left">
+          <span class="text-success">Moderate</span>
+          <span>and</span>
+          <span class="text-danger">worst</span>
+          <span>case projections for</span>
+          <span id="category-text">-</span>
+          <span>over next four weeks</span>
+        </div>
+        <div class="btn-group" role="group" aria-label="Category">
+          <button id="btn-carriers" type="button" class="btn btn-secondary">Carriers</button>
+          <button id="btn-critical" type="button" class="btn btn-secondary">Critical</button>
+          <button id="btn-ventilators" type="button" class="btn btn-secondary">Ventilators</button>
+          <button id="btn-pumps" type="button" class="btn btn-secondary">Pumps</button>
+        </div>
       </div>
     </div>
     <div class="text-center">

@@ -291,4 +291,10 @@ function setCategory(config, value) {
   $("#btn-".concat(config.category)).removeClass("btn-dark");
   config.category = value;
   $("#btn-".concat(config.category)).addClass("btn-dark");
+  switch (value) {
+    case "carriers"    : $("#category-text").html("estimated carriers"); break;
+    case "critical"    : $("#category-text").html("critically ill patients"); break;
+    case "ventilators" : $("#category-text").html("ventilators required"); break;
+    case "pumps"       : $("#category-text").html("infusion pumps required"); break;
+  }
 }
