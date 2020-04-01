@@ -259,17 +259,6 @@ class Covid19ModelIndia extends Covid19Model
   }
 }
 
-
-$(function()
-{
-  let model = new Covid19ModelIndia();
-
-  console.log(model.countryStat("reported", model.highParams, model.dates[0]));
-  console.log(model.itemStat(0, model.countryStat("critical", model.highParams, model.dates[2])));
-});
-
-
-
 const itemParamsForCriticalUse = [
 { "id" : 1, "name" : "ventilator",    "use" : 1   },
 { "id" : 2, "name" : "infusion-pump", "use" : 3.5 }
