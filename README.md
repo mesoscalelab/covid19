@@ -1,54 +1,51 @@
 # covid19
-
 COVID-19 Model Projections for India
 
-## Model API
+## Include
+Both scripts `covid19-patients-india.js` and `covid19-model-india.js` have to be included.
+```html
+<script src="https://raw.githubusercontent.com/mesoscalelab/covid19/master/js/covid19-patients-india.js"></script>
+<script src="https://raw.githubusercontent.com/mesoscalelab/covid19/master/js/covid19-model-india.js"></script>
+```
 
-The Covid19 Projection Model JS is available
-[here](https://raw.githubusercontent.com/mesoscalelab/covid19/master/js/covid19-model.js)
+## API
+The `Covid19ModelIndia` class can be instantiated and queried as follows:
+```js
+var model = new Covid19ModelIndia();
+```
 
-The `Covid19Model` class can be instantiated and queried as follows:
-```javascript
-var model = new Covid19Model();
+The model has two sets of parameters predefined for use:
++ `model.lowParams` : these parameters result low to moderate infection projections
++ `model.highParams`: these parameters result in high infection projections
+These parameters can be passed to generate the default low and high statistics.
 
-// moderate case patient statistics for district
-var districtID = "Bengaluru, Karnataka"
-var moderateStats = model.districtIDStats(districtID, model.moderateParams);
+The model is tuned to predict patient statistics every week, on the week from
+a baseline starting date. The array of dates corresponding to each week
+can be obtained using `model.dates`. `model.dates[0]` represents the baseline
+date (`t=0`), `model.dates[1]` represents a week after `t=0` and so on. 
 
-// worst case patient statistics for district
-var worstStats = model.districtIDStats(districtID, model.worstParams);
+For example, to obtain the projected number of critically ill patients
+for the second week in a district, the following query needs to be made:
+```js
+var districtIndex = model.indexDistrictNameKey("Bengaluru.Karnataka");
+var numCritical = model.districtStat("critical", districtIndex, model.lowParams, model.dates[2]);
+```
 
-// the stats return an object with the following fields:
-{
-  t0Confirmed : // number of infections confirmed as of baseline date t0
-  t0Estimated : // number of estimated carriers as of baseline date t0
-  carriers    : { t1 : , t2 : , t3 : , t4 : } // projected number of carriers by future nth week
-  critical    : { t1 : , t2 : , t3 : , t4 : } // projected number of critically ill by future nth week
-}
+Statistics for the following categories can be output by the model:
++ `"reported"` : Total number of infections reported as of `t=0`
++ `"carriers"` : Estimated number of carriers for the given date
++ `"critical"` : Estimated number of critically ill patients for the given date
 
-// for example, print worst case number of critical patients
-// projected for two weeks from baseline date
-console.log(worstStats.critical.t1);
+In addition, the number of items required for critically ill patients can be obtained
+using:
+```js
+var itemIndex = model.indexItemName("infusion-pumps");
+var numPumps = model.itemStat(itemIndex, numCritical);
+```
+The following types of items are currently supported:
++ `"ventilators"`
++ `"infusion-pumps"`
 
-// item statistics are proportional to the number of critical patients
-// they can be obtained by passing the critical field of the stats object
-var worstPumpStats = model.itemStats("pumps", worstStats.critical)
-
-// worst case number of pumps required for week 2
-console.log(worstPumpStats.t1)
-
-// similar statistics are available for states and country
-var KAStats = model.stateStats("Karnataka", model.worstParams);
-console.log(KAStats.carriers.t3);
-
-var KAPumpStats = model.itemStats("pumps", KAStats.critical);
-console.log(KAPumpStats.t3);
-
-var KAStats = model.countryStats(model.worstParams);
-
-// print projection dates, including baseline date t0
-console.log(model.dates.t0);
-console.log(model.dates.t1);
-console.log(model.dates.t2);
-console.log(model.dates.t3);
-console.log(model.dates.t4);
+In addition to the calculating the index of the item or category by name, the
+index can be calculated from an ID as well. See the JSON objects defined in
+the scripts for information about the IDs.
