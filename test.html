@@ -6,7 +6,16 @@
 <body>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script src="covid19-patients-india.js"></script>
-<script src="covid19-model-india.js"></script>
+<script src="js/covid19-patients-india.js"></script>
+<script src="js/covid19-model-india.js"></script>
+<script>
+
+$(function()
+{
+  var model = new Covid19ModelIndia();
+  console.log(model.districtStatMax("critical", model.lowParams, new Date("2020-03-31")));
+});
+
+</script>
 </body>
 </html>

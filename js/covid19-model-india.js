@@ -87,6 +87,13 @@ class Covid19Model
     const stateName     = this.districtParams[districtIndex].state;
     const stateIndex    = this.stateNameIndexMap.get(stateName);
     const adjustedCount = this.districtAdjustedCount[districtIndex];
+console.log("CCCCCCCCC", stateName);
+console.log("DDDDDDDDD", stateIndex);
+console.log("EEEEEEEEE", districtIndex);
+console.log("FFFFFFFFF", this.districtParams[districtIndex].name);
+console.log("GGGGGGGGG", this.districtParams[districtIndex].state);
+console.log("AAAAAAAAA", params.n);
+console.log("BBBBBBBBB", this.stateParams[stateIndex].n);
     const n             = (params.n > 0 ? params.n : this.stateParams[stateIndex].n);
     const growth        = this.interpolateAt(date, params.g, params.t);
     const reported      = Math.floor(this.districtNewsCount[districtIndex]);
@@ -282,7 +289,7 @@ const stateParamsForIndia = [
 { "id" :  6, "name" : "Chandigarh",                  "n" : 2 },
 { "id" :  7, "name" : "Chhattisgarh",                "n" : 2 },
 { "id" :  8, "name" : "Dadra and Nagar Haveli",      "n" : 2 },
-{ "id" :  9, "name" : "Daman and Diu",               "n" : 2 },
+{ "id" :  9, "name" : "Daman And Diu",               "n" : 2 },
 { "id" : 10, "name" : "Delhi",                       "n" : 2.5 },
 { "id" : 11, "name" : "Goa",                         "n" : 2 },
 { "id" : 12, "name" : "Gujarat",                     "n" : 3 },
@@ -1053,7 +1060,7 @@ const districtParamsForIndia = [
 { "id" : 733, "name" : "Unclassified", "state" : "Chandigarh"},
 { "id" : 734, "name" : "Unclassified", "state" : "Chhattisgarh"},
 { "id" : 735, "name" : "Unclassified", "state" : "Dadra and Nagar Haveli"},
-{ "id" : 736, "name" : "Unclassified", "state" : "Daman and Diu"},
+{ "id" : 736, "name" : "Unclassified", "state" : "Daman And Diu"},
 { "id" : 737, "name" : "Unclassified", "state" : "Delhi"},
 { "id" : 738, "name" : "Unclassified", "state" : "Goa"},
 { "id" : 739, "name" : "Unclassified", "state" : "Gujarat"},
