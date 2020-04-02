@@ -72,6 +72,15 @@ class Covid19Model
     }
     return g[g.length - 1];
   }
+  
+  districtStatMax(category, params, date)
+  {
+    let maxValue = 0;
+    for (let i = 0; i < this.numDistricts; i++) {
+      maxValue = Math.max(maxValue, districtStat(category, i, params, date));
+    }
+    return maxValue;
+  }
 
   districtStat(category, districtIndex, params, date)
   {
