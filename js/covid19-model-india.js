@@ -451,7 +451,7 @@ const districtParamsForIndia = [
 { "id" : 122, "name" : "Dhamtari", "state" : "Chhattisgarh"},
 { "id" : 123, "name" : "Durg", "state" : "Chhattisgarh"},
 { "id" : 124, "name" : "Gariaband", "state" : "Chhattisgarh"},
-{ "id" : 125, "name" : "Janjgir - Champa", "state" : "Chhattisgarh"},
+{ "id" : 125, "name" : "Janjgir Champa", "state" : "Chhattisgarh"},
 { "id" : 126, "name" : "Jashpur", "state" : "Chhattisgarh"},
 { "id" : 127, "name" : "Kabeerdham", "state" : "Chhattisgarh"},
 { "id" : 128, "name" : "Kondagaon", "state" : "Chhattisgarh"},
