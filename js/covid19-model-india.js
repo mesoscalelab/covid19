@@ -102,6 +102,9 @@ class Covid19Model
 
   indexStateName(stateName)
   {
+    if (!this.stateNameIndexMap.has(stateName)) {
+      throw new SyntaxError("State Name: \"".concat(stateName.concat("\" is not valid.")));
+    }
     return this.stateNameIndexMap.get(stateName);
   }
 
@@ -112,6 +115,9 @@ class Covid19Model
 
   indexDistrictNameKey(districtNameKey)
   {
+    if (!this.districtNameKeyIndexMap.has(districtNameKey)) {
+      throw new SyntaxError("District Name Key: \"".concat(districtNameKey.concat("\" is not valid.")));
+    }
     return this.districtNameKeyIndexMap.get(districtNameKey);
   }
 
@@ -122,6 +128,9 @@ class Covid19Model
 
   indexItemName(itemName)
   {
+    if (!this.itemNameIndexMap.has(itemName)) {
+      throw new SyntaxError("Item Name: \"".concat(itemName.concat("\" is not valid.")));
+    }
     return this.itemNameIndexMap.get(itemName);
   }
 
