@@ -87,13 +87,6 @@ class Covid19Model
     const stateName     = this.districtParams[districtIndex].state;
     const stateIndex    = this.stateNameIndexMap.get(stateName);
     const adjustedCount = this.districtAdjustedCount[districtIndex];
-console.log("CCCCCCCCC", stateName);
-console.log("DDDDDDDDD", stateIndex);
-console.log("EEEEEEEEE", districtIndex);
-console.log("FFFFFFFFF", this.districtParams[districtIndex].name);
-console.log("GGGGGGGGG", this.districtParams[districtIndex].state);
-console.log("AAAAAAAAA", params.n);
-console.log("BBBBBBBBB", this.stateParams[stateIndex].n);
     const n             = (params.n > 0 ? params.n : this.stateParams[stateIndex].n);
     const growth        = this.interpolateAt(date, params.g, params.t);
     const reported      = Math.floor(this.districtNewsCount[districtIndex]);
