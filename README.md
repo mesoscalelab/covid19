@@ -30,7 +30,7 @@ the model is instantiated inside the init function which is called only after
 all the data has been fetched as shown above.
 
 In order to create an instance of the model, we need to supply:
-+ `t0` : baseline date, usually taken as a week before the current date
++ `t0` : baseline date, usually taken as three to seven days before the current date
 + `stateSeries` : an array containing daily state-wise statistics as obtained from `states_daily.json`
 + `caseSeries` : an array containing time-series of reported cases as obtained from `raw_data.json`
 
@@ -38,11 +38,13 @@ In order to create an instance of the model, we need to supply:
 function init(data)
 {
   let t0 = new Date();
-  t0.setDate(t0.getDate() - 7);
+  t0.setDate(t0.getDate() - 3);
 
   let statesSeries = data[0].states_daily;
   let caseSeries   = data[1].raw_data;
   let model        = new Covid19ModelIndia(t0, statesSeries, caseSeries);
+  
+  display();
 }
 ```
 
@@ -71,12 +73,12 @@ Statistics for the following categories can be output by the model:
 In addition, the number of items required for critically ill patients can be obtained
 using:
 ```js
-var itemIndex = model.indexItemName("infusion-pumps");
+var itemIndex = model.indexItemName("pumps");
 var numPumps = model.itemStat(itemIndex, numCritical);
 ```
 The following types of items are currently supported:
 + `"ventilators"`
-+ `"infusion-pumps"`
++ `"pumps"`
 
 In addition to the calculating the index of the item or category by name, the
 index can be calculated from an ID as well. See the JSON objects defined in
