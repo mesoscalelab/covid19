@@ -24,10 +24,8 @@ $(function()
 
 function init(data)
 {
-  //let t0 = new Date();
-  //t0.setDate(t0.getDate() - 7);
-
-  let t0 = new Date("28-Mar-20");
+  let t0 = new Date();
+  t0.setDate(t0.getDate() - 7);
 
   let statesSeries = data[0].states_daily;
   let caseSeries   = data[1].raw_data;
