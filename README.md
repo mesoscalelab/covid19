@@ -2,16 +2,48 @@
 COVID-19 Model Projections for India
 
 ## Include
-Both scripts `covid19-patients-india.js` and `covid19-model-india.js` have to be included.
+Download the JS script `covid19-model-india.js` and include it locally.
 ```html
-<script src="https://raw.githubusercontent.com/mesoscalelab/covid19/master/js/covid19-patients-india.js"></script>
-<script src="https://raw.githubusercontent.com/mesoscalelab/covid19/master/js/covid19-model-india.js"></script>
+<script src="js/covid19-model-india.js"></script>
 ```
 
 ## API
-The `Covid19ModelIndia` class can be instantiated and queried as follows:
+Before the `Covid19ModelIndia` class can be instantiated, we need to fetch some
+JSON data as follows:
 ```js
-var model = new Covid19ModelIndia();
+  let urls = [];
+  urls.push("https://api.covid19india.org/states_daily.json");
+  urls.push("https://api.covid19india.org/raw_data.json");
+
+  let promises = [];
+  urls.forEach(function(url) {
+    promises.push(fetch(url).then(data => data.json()));
+  });
+
+  Promise.all(promises).then(function(data) {
+    init(data);
+  });
+```
+Due to the asynchronous nature of the fetch calls, the model should be created
+only after ensuring that all data has been fetched completely. For this reason,
+the model is instantiated inside the init function which is called only after
+all the data has been fetched as shown above.
+
+In order to create an instance of the model, we need to supply:
++ `t0` : baseline date, usually taken as a week before the current date
++ `stateSeries` : an array containing daily state-wise statistics as obtained from `states_daily.json`
++ `caseSeries` : an array containing time-series of reported cases as obtained from `raw_data.json`
+
+```js
+function init(data)
+{
+  let t0 = new Date();
+  t0.setDate(t0.getDate() - 7);
+
+  let statesSeries = data[0].states_daily;
+  let caseSeries   = data[1].raw_data;
+  let model        = new Covid19ModelIndia(t0, statesSeries, caseSeries);
+}
 ```
 
 The model has two sets of parameters predefined for use:
