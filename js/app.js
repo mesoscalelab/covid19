@@ -6,35 +6,63 @@ class AppConfig
   }
 };
 
-let model = new Covid19Model();
-let appConfig = new AppConfig();
-
 $(function()
 {
-  setCategory(appConfig, "carriers");
-  setAllStats(appConfig);
+  let urls = [];
+  urls.push("https://api.covid19india.org/states_daily.json");
+  urls.push("https://api.covid19india.org/raw_data.json");
+
+  let promises = [];
+  urls.forEach(function(url) {
+    promises.push(fetch(url).then(data => data.json()));
+  });
+
+  Promise.all(promises).then(function(data) {
+    init(data);
+  });
+});
+
+function init(data)
+{
+  //let t0 = new Date();
+  //t0.setDate(t0.getDate() - 7);
+
+  let t0 = new Date("28-Mar-20");
+
+  let statesSeries = data[0].states_daily;
+  let caseSeries   = data[1].raw_data;
+  let model        = new Covid19ModelIndia(t0, statesSeries, caseSeries);
+  let appConfig    = new AppConfig();
+
+  setCategory(appConfig, "reported");
+  setAllStats(model, appConfig);
 
   // category buttons
+  $('#btn-reported').click(function(e) {
+    setCategory(appConfig, "reported");
+    setAllStats(model, appConfig);
+  });
+
   $('#btn-carriers').click(function(e) {
     setCategory(appConfig, "carriers");
-    setAllStats(appConfig);
+    setAllStats(model, appConfig);
   });
 
   $('#btn-critical').click(function(e) {
     setCategory(appConfig, "critical");
-    setAllStats(appConfig);
+    setAllStats(model, appConfig);
   });
 
   $('#btn-ventilators').click(function(e) {
     setCategory(appConfig, "ventilators");
-    setAllStats(appConfig);
+    setAllStats(model, appConfig);
   });
 
   $('#btn-pumps').click(function(e) {
     setCategory(appConfig, "pumps");
-    setAllStats(appConfig);
+    setAllStats(model, appConfig);
   }); 
-});
+}
 
 function collapseRows(idValue)
 {
@@ -76,10 +104,10 @@ function toggleRows(idValue)
   });
 }
 
-function setAllStats(config)
+function setAllStats(model, config)
 {
   $("#all-stats").html("");
-  createHeader();
+  createHeader(model);
 
   let row = new Array(10).fill("");
 
@@ -87,19 +115,20 @@ function setAllStats(config)
   createRow(row);
 
   if (true) {
-    const moderateStats = model.countryStats(model.moderateParams);
-    const worstStats = model.countryStats(model.worstParams);
     row.fill("")
     row[1] = "India"; 
-    fillRowValuesWithStats(appConfig, moderateStats, worstStats, row);
+    for (let i = 2; i < row.length; i+=2) {
+      row[i]   = model.countryStat(config.category, model.lowParams,  model.dates[i/2]);
+      row[i+1] = model.countryStat(config.category, model.highParams, model.dates[i/2]);
+    }
     createRow(row, true);
 
     $(".t0-text").each(function() {
-      $(this).html(model.dates.t0);
+      $(this).html(model.dates[0].toLocaleDateString("en-IN"));
     });
 
-    $("#t0-confirmed").html(worstStats.t0Confirmed);
-    $("#t0-estimated").html(worstStats.t0Estimated);
+    $("#t0-confirmed").html(model.countryStat("reported", model.lowParams, model.t0));
+    $("#t0-estimated").html(model.countryStat("carriers", model.lowParams, model.t0));
   }
 
   row.fill("");
@@ -109,14 +138,15 @@ function setAllStats(config)
   row[1] = "Top 5 Affected States";
   createRow(row, true, "top-states-stats");
 
-  let topStates = model.calcTopAffectedStates(5);
-  for (let i = 0; i < topStates.length; i++) {
-    const state = topStates[i]; 
-    const moderateStats = model.stateStats(state, model.moderateParams);
-    const worstStats = model.stateStats(state, model.worstParams);
+  let topStates = model.listTopAffectedStates(config.category, model.lowParams, model.dates[1]);
+  for (let j = 0; j < 5; j++) {
+    const state = topStates[j].index; 
     row.fill("");
-    row[1] = state; 
-    fillRowValuesWithStats(appConfig, moderateStats, worstStats, row);
+    row[1] = model.stateParams[state].name; 
+    for (let i = 2; i < row.length; i+=2) {
+      row[i]   = model.stateStat(config.category, state, model.lowParams,  model.dates[i/2]);
+      row[i+1] = model.stateStat(config.category, state, model.highParams, model.dates[i/2]);
+    }
     createRow(row, false, "", "top-states-stats");
   }
 
@@ -127,16 +157,25 @@ function setAllStats(config)
   row[1] = "Top 10 Affected Districts";
   createRow(row, true, "top-districts-stats");
 
-  let topDistrictIDs = model.calcTopAffectedDistrictIDs(10);
-  for (let i = 0; i < topDistrictIDs.length; i++) {
-    const districtID = topDistrictIDs[i]; 
-    const moderateStats = model.districtIDStats(districtID, model.moderateParams);
-    const worstStats = model.districtIDStats(districtID, model.worstParams);
-    const dinfo = model.districtIDInfo(districtID);
-    row.fill("")
-    row[1] = dinfo.district.concat(", ").concat(dinfo.state); 
-    fillRowValuesWithStats(appConfig, moderateStats, worstStats, row);
+  let topDistricts = model.listTopAffectedDistricts(config.category, model.lowParams, model.dates[1]);
+  let topDistrictsCount = 0;
+  for (let j = 0; j < topDistricts.length; j++) {
+    const district = topDistricts[j].index; 
+    const districtName = model.districtParams[district].name;
+    const stateName = model.districtParams[district].state;
+    if (districtName === "Unclassified")
+      continue;
+    row.fill("");
+    row[1] = districtName + ", " + stateName; 
+    for (let i = 2; i < row.length; i+=2) {
+      row[i]   = model.districtStat(config.category, district, model.lowParams,  model.dates[i/2]);
+      row[i+1] = model.districtStat(config.category, district, model.highParams, model.dates[i/2]);
+    }
     createRow(row, false, "", "top-districts-stats");
+    topDistrictsCount++;
+    if (topDistrictsCount == 10) {
+      break;
+    }
   }
 
   row.fill("");
@@ -149,22 +188,25 @@ function setAllStats(config)
   row[1] = "District-Wise Projections";
   createRow(row, true);
 
-  for (let [state, sinfo] of model.statesInfo) {
-    const moderateStatsState = model.stateStats(state, model.moderateParams);
-    const worstStatsState = model.stateStats(state, model.worstParams);
+  for (let state = 0; state < model.numStates; state++) {
     row.fill("");
-    row[1] = state; 
-    fillRowValuesWithStats(appConfig, moderateStatsState, worstStatsState, row);
-    const stateIDValue = state.replace(/\s/g, "").concat("-stats");
+    let stateName = model.stateParams[state].name; 
+    row[1] = stateName; 
+    for (let i = 2; i < row.length; i+=2) {
+      row[i]   = model.stateStat(config.category, state, model.lowParams,  model.dates[i/2]);
+      row[i+1] = model.stateStat(config.category, state, model.highParams, model.dates[i/2]);
+    }
+    const stateIDValue = stateName.replace(/\s/g, "").concat("-stats");
     createRow(row, true, stateIDValue);
-    for (let i = 0; i < sinfo.districtIDs.length; i++) {
-      const districtID = sinfo.districtIDs[i]; 
-      const moderateStats = model.districtIDStats(districtID, model.moderateParams);
-      const worstStats = model.districtIDStats(districtID, model.worstParams);
-      const dinfo = model.districtIDInfo(districtID);
+    const districts = model.districtsOfStates[state];
+    for (let j = 0; j < districts.length; j++) {
+      const district = districts[j]; 
       row.fill("")
-      row[1] = dinfo.district; 
-      fillRowValuesWithStats(appConfig, moderateStats, worstStats, row);
+      row[1] = model.districtParams[district].name; 
+      for (let i = 2; i < row.length; i+=2) {
+        row[i]   = model.districtStat(config.category, district, model.lowParams,  model.dates[i/2]);
+        row[i+1] = model.districtStat(config.category, district, model.highParams, model.dates[i/2]);
+      }
       createRow(row, false, "", stateIDValue);
     }
     row.fill("");
@@ -178,63 +220,19 @@ function setAllStats(config)
   expandRows("top-districts-stats");
   toggleRows("top-districts-stats");
 
-  for (let state of model.allStates) {
-    const stateIDValue = state.replace(/\s/g, "").concat("-stats");
+  for (let state = 0; state < model.numStates; state++) {
+    let stateName = model.stateParams[state].name;
+    const stateIDValue = stateName.replace(/\s/g, "").concat("-stats");
     collapseRows(stateIDValue);
     toggleRows(stateIDValue);
   }
 }
 
-function fillRowValuesWithStats(config, moderateStats, worstStats, row)
-{
-  switch (config.category) {
-    case "carriers":
-      row[2] = moderateStats.carriers.t1;
-      row[4] = moderateStats.carriers.t2;
-      row[6] = moderateStats.carriers.t3;
-      row[8] = moderateStats.carriers.t4;
-      row[3] = worstStats.carriers.t1;
-      row[5] = worstStats.carriers.t2;
-      row[7] = worstStats.carriers.t3;
-      row[9] = worstStats.carriers.t4;
-    break;
-    case "critical":
-      row[2] = moderateStats.critical.t1;
-      row[4] = moderateStats.critical.t2;
-      row[6] = moderateStats.critical.t3;
-      row[8] = moderateStats.critical.t4;
-      row[3] = worstStats.critical.t1;
-      row[5] = worstStats.critical.t2;
-      row[7] = worstStats.critical.t3;
-      row[9] = worstStats.critical.t4;
-    break;
-    default:
-      const moderateItemStats = model.itemStats(config.category, moderateStats.critical);
-      const worstItemStats = model.itemStats(config.category, worstStats.critical);
-      row[2] = moderateItemStats.t1;
-      row[4] = moderateItemStats.t2;
-      row[6] = moderateItemStats.t3;
-      row[8] = moderateItemStats.t4;
-      row[3] = worstItemStats.t1;
-      row[5] = worstItemStats.t2;
-      row[7] = worstItemStats.t3;
-      row[9] = worstItemStats.t4;
-    break;
-  }
-}
-
-function createHeader() {
+function createHeader(model) {
   let newRow = document.getElementById("all-stats").insertRow();
   for (let i = 0; i < 4; i++) {
     let newCell = newRow.insertCell(i);
-    let date = "";
-    switch (i) {
-      case 0 : date = model.dates.t1; break;
-      case 1 : date = model.dates.t2; break;
-      case 2 : date = model.dates.t3; break;
-      case 3 : date = model.dates.t4; break;
-    }
-    let newText = document.createTextNode(date);
+    let newText = document.createTextNode(model.dates[i+1].toLocaleDateString("en-IN"));
     newCell.appendChild(newText);
     let att = document.createAttribute("colspan");
     att.value = "2";
@@ -298,6 +296,7 @@ function setCategory(config, value) {
   config.category = value;
   $("#btn-".concat(config.category)).addClass("btn-dark");
   switch (value) {
+    case "reported"    : $("#category-text").html("estimated case reports"); break;
     case "carriers"    : $("#category-text").html("estimated carriers"); break;
     case "critical"    : $("#category-text").html("critically ill patients"); break;
     case "ventilators" : $("#category-text").html("ventilators required"); break;

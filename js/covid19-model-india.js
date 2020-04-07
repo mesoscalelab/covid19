@@ -4,7 +4,7 @@ class Covid19Model
   {
     this.patientDateFormat       = patientDateFormat;
     this.t0                      = t0;
-    this.stateParams             = stateParamsForIndia;
+    this.stateParams             = stateParams;
     this.districtParams          = districtParamsForIndia;
     this.itemParams              = itemParamsForCriticalUse;
     this.numStates               = this.stateParams.length;
@@ -39,6 +39,28 @@ class Covid19Model
     }
   }
 
+  listTopAffectedStates(category, params, date)
+  {
+    let stats = new Array(this.numStates);
+    for (let state = 0; state < stats.length; state++) {
+      const stat = this.stateStat(category, state, params, date);
+      stats[state] = { index : state, stat : stat };
+    }
+    stats.sort((a,b) => (b.stat - a.stat));
+    return stats;
+  }
+
+  listTopAffectedDistricts(category, params, date)
+  {
+    let stats = new Array(this.numDistricts);
+    for (let district = 0; district < stats.length; district++) {
+      const stat = this.districtStat(category, district, params, date);
+      stats[district] = { index : district, stat : stat };
+    }
+    stats.sort((a,b) => (b.stat - a.stat));
+    return stats;
+  }
+
   itemStat(itemIndex, numCritical)
   {
     return Math.floor(this.itemParams[itemIndex].use * numCritical);
@@ -53,12 +75,31 @@ class Covid19Model
     return sum;
   }
 
+  countryTotal(allDistrictCounts)
+  {
+    let sum = 0;
+    for (let i = 0; i < this.numStates; i++) {
+      sum += this.stateTotal(i, allDistrictCounts);
+    }
+    return sum;
+  }
+
   stateStat(category, stateIndex, params, dateString)
   {
     const districts = this.districtsOfStates[stateIndex];
     let sum = 0;
     for (let i = 0; i < districts.length; i++) {
       sum += this.districtStat(category, districts[i], params, dateString);
+    }
+    return sum;
+  }
+
+  stateTotal(stateIndex, allDistrictCounts)
+  {
+    const districts = this.districtsOfStates[stateIndex];
+    let sum = 0;
+    for (let i = 0; i < districts.length; i++) {
+      sum += allDistrictCounts[districts[i]];
     }
     return sum;
   }
@@ -72,14 +113,14 @@ class Covid19Model
     return maxValue;
   }
 
-  interpolateAt(date, g, t)
+  interpolateAt(date, deceased0, g, t)
   {
     for (let i = 0; i < t.length; i++) {
       if (date <= t[i]) {
-        return g[i];
+        return g(deceased0)[i];
       }
     }
-    return g[g.length - 1];
+    return g(deceased0)[t.length - 1];
   }
 
   districtStat(category, districtIndex, params, date)
@@ -87,16 +128,18 @@ class Covid19Model
     const stateName     = this.districtParams[districtIndex].state;
     const stateIndex    = this.stateNameIndexMap.get(stateName);
     const adjustedCount = this.districtAdjustedCount[districtIndex];
+    const reported0     = Math.floor(this.districtNewsCount[districtIndex]);
+    const deceased0     = Math.floor(this.stateParams[stateIndex].deceased);
     const n             = (params.n > 0 ? params.n : this.stateParams[stateIndex].n);
-    const growth        = this.interpolateAt(date, params.g, params.t);
-    const reported      = Math.floor(this.districtNewsCount[districtIndex]);
+    const growth        = this.interpolateAt(date, deceased0, params.g, params.t);
     const carriers      = Math.floor(growth * n * adjustedCount);
     const critical      = Math.floor(0.01 * params.x * carriers);
-
+    const reported      = Math.floor(carriers / n);
     switch (category) {
-      case "reported" : return reported; break;
+      case "reported" : return (date === this.t0 ? reported0 : reported); break;
       case "carriers" : return carriers; break;
       case "critical" : return critical; break;
+      default         : return this.itemStat(this.indexItemName(category), critical); break;
     }
   }
 
@@ -188,7 +231,7 @@ class Covid19Model
   {
     let itemNameIndexMap = new Map();
     for (let i = 0; i < this.itemParams.length; i++) {
-      itemNameIndexMap.set(this.itemParams[i].id, i);
+      itemNameIndexMap.set(this.itemParams[i].name, i);
     }
     return itemNameIndexMap;
   }
@@ -223,16 +266,20 @@ class Covid19Model
     return districtsOfState;
   }
 
-  binCountsByDistrict(patients)
+  binCountsByDistrict(patients, tillDate)
   {
     let districtCount = new Array(this.numDistricts).fill(0);
     for (let i = 0; i < patients.length; i++) {
-      const date = this.dateParser(patients[i].date, this.patientDateFormat);
-      if (date > this.t0)
+      const date = this.dateParser(patients[i].dateannounced, this.patientDateFormat);
+      if (date > tillDate)
         continue;
-      const districtName = patients[i].district;
-      const stateName    = patients[i].state;
-      const key          = this.districtNameKey(districtName, stateName);
+      const stateName = patients[i].detectedstate;
+      if (stateName === "")
+        continue;
+      let districtName = patients[i].detecteddistrict;
+      if (districtName === "")
+        districtName = "Unclassified";
+      const key = this.districtNameKey(districtName, stateName);
       districtCount[this.districtNameKeyIndexMap.get(key)]++;
     }
     return districtCount;
@@ -254,72 +301,139 @@ class Covid19Model
 
 class Covid19ModelIndia extends Covid19Model
 {
-  constructor() {
-    const dates = [new Date("2020-03-28"),
-                   new Date("2020-04-05"),
-                   new Date("2020-04-12"),
-                   new Date("2020-04-19"),
-                   new Date("2020-04-26")];
+  constructor(baseDate, stateTimeSeries, caseTimeSeries) {
 
-    const lowGrowth  = [ 1,  4, 20,  70, 100 ];
-    const highGrowth = [ 1, 10, 50, 100, 250 ];
+    // set base date and next four weeks
+    let dates = new Array(4);
+    for (let i = 0; i <= 4; i++) {
+      dates[i] = new Date(baseDate);
+      dates[i].setDate(baseDate.getDate() + i * 7);
+    }
 
-    super(covid19PatientsInIndia,
+    // carrier growth functions
+    function lowGrowth(deceased) {
+      if (deceased < 10) {
+        return [1,3,20,70,150];
+      } else {
+        return [1,4.5,18,62,140];
+      }
+    }
+
+    function highGrowth(deceased) {
+      if (deceased < 10) {
+        return [1,7,50,120,400];
+      } else {
+        return [1,8,40,118,320];
+      }
+    }
+
+    let stateParams = binStateCountsTill(dates[0], stateTimeSeries);
+    super(caseTimeSeries,
           "DD/MM/YYYY",
           dates[0],
-          stateParamsForIndia,
+          stateParams,
           districtParamsForIndia,
           itemParamsForCriticalUse);
 
     this.dates      = dates;
-    this.lowParams  = { n : -1, x :  8, g : lowGrowth,  t : this.dates };
-    this.highParams = { n : -1, x : 12, g : highGrowth, t : this.dates };
+    this.lowParams  = { n : -1, x : 10, g : lowGrowth,  t : dates };
+    this.highParams = { n : -1, x : 10, g : highGrowth, t : dates };
   }
 }
 
-const itemParamsForCriticalUse = [
-{ "id" : 1, "name" : "ventilator",    "use" : 1   },
-{ "id" : 2, "name" : "infusion-pump", "use" : 3.5 }
-];
+function inflationFactor(confirmed, deceased)
+{
+  const n = (118 + 97 * deceased) / confirmed;
+  if (deceased < 5) {
+    return 2;
+  } else if (n > 5) {
+    return 5;
+  } else if (n < 1) {
+    return 1;
+  } else {
+    return n;
+  }
+}
 
-const stateParamsForIndia = [
-{ "id" :  1, "name" : "Andaman and Nicobar Islands", "n" : 2 },
-{ "id" :  2, "name" : "Andhra Pradesh",              "n" : 2 },
-{ "id" :  3, "name" : "Arunachal Pradesh",           "n" : 2 },
-{ "id" :  4, "name" : "Assam",                       "n" : 2 },
-{ "id" :  5, "name" : "Bihar",                       "n" : 4 },
-{ "id" :  6, "name" : "Chandigarh",                  "n" : 2 },
-{ "id" :  7, "name" : "Chhattisgarh",                "n" : 2 },
-{ "id" :  8, "name" : "Dadra and Nagar Haveli",      "n" : 2 },
-{ "id" :  9, "name" : "Daman And Diu",               "n" : 2 },
-{ "id" : 10, "name" : "Delhi",                       "n" : 2.5 },
-{ "id" : 11, "name" : "Goa",                         "n" : 2 },
-{ "id" : 12, "name" : "Gujarat",                     "n" : 3 },
-{ "id" : 13, "name" : "Haryana",                     "n" : 2 },
-{ "id" : 14, "name" : "Himachal Pradesh",            "n" : 2 },
-{ "id" : 15, "name" : "Jammu and Kashmir",           "n" : 2 },
-{ "id" : 16, "name" : "Jharkhand",                   "n" : 2 },
-{ "id" : 17, "name" : "Karnataka",                   "n" : 2.5 },
-{ "id" : 18, "name" : "Kerala",                      "n" : 1.4 },
-{ "id" : 19, "name" : "Ladakh",                      "n" : 2 },
-{ "id" : 20, "name" : "Lakshadweep",                 "n" : 2 },
-{ "id" : 21, "name" : "Madhya Pradesh",              "n" : 2.5 },
-{ "id" : 22, "name" : "Maharashtra",                 "n" : 2.5 },
-{ "id" : 23, "name" : "Manipur",                     "n" : 2 },
-{ "id" : 24, "name" : "Meghalaya",                   "n" : 2 },
-{ "id" : 25, "name" : "Mizoram",                     "n" : 2 },
-{ "id" : 26, "name" : "Nagaland",                    "n" : 2 },
-{ "id" : 27, "name" : "Odisha",                      "n" : 2 },
-{ "id" : 28, "name" : "Puducherry",                  "n" : 2 },
-{ "id" : 29, "name" : "Punjab",                      "n" : 2 },
-{ "id" : 30, "name" : "Rajasthan",                   "n" : 2 },
-{ "id" : 31, "name" : "Sikkim",                      "n" : 2 },
-{ "id" : 32, "name" : "Tamil Nadu",                  "n" : 1.5 },
-{ "id" : 33, "name" : "Telangana",                   "n" : 1.5 },
-{ "id" : 34, "name" : "Tripura",                     "n" : 2 },
-{ "id" : 35, "name" : "Uttar Pradesh",               "n" : 2 },
-{ "id" : 36, "name" : "Uttarakhand",                 "n" : 2 },
-{ "id" : 37, "name" : "West Bengal",                 "n" : 3 }
+function binStateCountsTill(date, data)
+{
+  let stateAbbrvs = Object.keys(data[0]);
+  stateAbbrvs.splice(stateAbbrvs.indexOf("date"), 1);
+  stateAbbrvs.splice(stateAbbrvs.indexOf("status"), 1);
+  stateAbbrvs.splice(stateAbbrvs.indexOf("tt"), 1);
+
+  let confirmed = new Array(stateAbbrvs.length).fill(0);
+  let recovered = new Array(stateAbbrvs.length).fill(0);
+  let deceased  = new Array(stateAbbrvs.length).fill(0);
+  for (let i = 0; i < data.length; i++) {
+    const info = data[i];
+    if (new Date(info.date) > date)
+      continue;
+    for (let j = 0; j < stateAbbrvs.length; j++) {
+      if (info.status === "Confirmed")
+        confirmed[j] += +info[stateAbbrvs[j]];
+      if (info.status === "Recovered")
+        recovered[j] += +info[stateAbbrvs[j]];
+      if (info.status === "Deceased")
+        deceased[j]  += +info[stateAbbrvs[j]];
+    }
+  }
+
+  var count = (abbrv, stat) => stat[stateAbbrvs.indexOf(abbrv)];
+
+  function pack(abbrv, state)
+  { return {
+      id       : abbrv,
+      name     : state,
+      deceased : count(abbrv, deceased),
+      n        : inflationFactor(count(abbrv, confirmed), count(abbrv, deceased))
+    };
+  };
+
+  let chart = [];
+  chart.push(pack("an", "Andaman and Nicobar Islands"));
+  chart.push(pack("ap", "Andhra Pradesh"));
+  chart.push(pack("ar", "Arunachal Pradesh"));
+  chart.push(pack("as", "Assam"));
+  chart.push(pack("br", "Bihar"));
+  chart.push(pack("ch", "Chandigarh"));
+  chart.push(pack("ct", "Chhattisgarh"));
+  chart.push(pack("dn", "Dadra and Nagar Haveli"));
+  chart.push(pack("dd", "Daman And Diu"));
+  chart.push(pack("dl", "Delhi"));
+  chart.push(pack("ga", "Goa"));
+  chart.push(pack("gj", "Gujarat"));
+  chart.push(pack("hr", "Haryana"));
+  chart.push(pack("hp", "Himachal Pradesh"));
+  chart.push(pack("jk", "Jammu and Kashmir"));
+  chart.push(pack("jh", "Jharkhand"));
+  chart.push(pack("ka", "Karnataka"));
+  chart.push(pack("kl", "Kerala"));
+  chart.push(pack("ld", "Ladakh"));
+  chart.push(pack("la", "Lakshadweep"));
+  chart.push(pack("mp", "Madhya Pradesh"));
+  chart.push(pack("mh", "Maharashtra"));
+  chart.push(pack("mn", "Manipur"));
+  chart.push(pack("ml", "Meghalaya"));
+  chart.push(pack("mz", "Mizoram"));
+  chart.push(pack("nl", "Nagaland"));
+  chart.push(pack("or", "Odisha"));
+  chart.push(pack("py", "Puducherry"));
+  chart.push(pack("pb", "Punjab"));
+  chart.push(pack("rj", "Rajasthan"));
+  chart.push(pack("sk", "Sikkim"));
+  chart.push(pack("tn", "Tamil Nadu"));
+  chart.push(pack("tg", "Telangana"));
+  chart.push(pack("tr", "Tripura"));
+  chart.push(pack("up", "Uttar Pradesh"));
+  chart.push(pack("ut", "Uttarakhand"));
+  chart.push(pack("wb", "West Bengal"));
+  return chart;
+}
+
+const itemParamsForCriticalUse = [
+{ "id" : 1, "name" : "ventilators",    "use" : 1   },
+{ "id" : 2, "name" : "pumps",          "use" : 3.5 }
 ];
 
 // After .odf to .csv export:
