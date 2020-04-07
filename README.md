@@ -44,7 +44,8 @@ function init(data)
   let caseSeries   = data[1].raw_data;
   let model        = new Covid19ModelIndia(t0, statesSeries, caseSeries);
   
-  display();
+  // all functions using model data are nested inside this
+  display(model, app);
 }
 ```
 
