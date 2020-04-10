@@ -365,7 +365,7 @@ class Covid19ModelIndia extends Covid19Model
 
     this.dates      = dates;
     this.lowParams  = { n : -1, m : -1, x : 10, y : 2, cg : lowCarrierGrowth,  dg : lowDeathGrowth, t : dates };
-    this.highParams = { n : -1, m : -1, x : 10, y : 8, cg : highCarrierGrowth, dg : highDeathGrowth, t : dates };
+    this.highParams = { n : -1, m : -1, x : 10, y : 2, cg : highCarrierGrowth, dg : highDeathGrowth, t : dates };
   }
 }
 
