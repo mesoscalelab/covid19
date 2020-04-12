@@ -116,7 +116,9 @@ class Covid19Model
   interpolateAt(date, deceased0, g, t)
   {
     for (let i = 0; i < t.length; i++) {
-      if (date <= t[i]) {
+      let nextDay = new Date(t[i]);
+      nextDay.setDate(nextDay.getDate()+1);
+      if (date < nextDay) {
         return g(deceased0)[i];
       }
     }
