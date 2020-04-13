@@ -439,21 +439,31 @@ class Covid19ModelIndia extends Covid19Model
       }
     }
 
+    function alpha(d)
+    {
+      if      (  0 <= d && d <  20) return { min : 0.16, max : 0.19 };
+      else if ( 20 <= d && d <  40) return { min : 0.13, max : 0.16 };
+      else if ( 40 <= d && d <  80) return { min : 0.11, max : 0.15 };
+      else if ( 80 <= d && d < 160) return { min : 0.11, max : 0.16 };
+      else if (160 <= d && d < 640) return { min : 0.16, max : 0.18 };
+      else if (640 <= d)            return { min : 0.13, max : 0.15 };
+    }
+
     // death growth functions
     function lowDeathGrowth(deceased) {
-      if (deceased < 10) {
-        return [1,4,27,85,160];
-      } else {
-        return [1,5.5,20,70,156];
+      let dg = new Array(5).fill(0);
+      for (let w = 0; w <= 4; w++) {
+        dg[w] = Math.exp(alpha(deceased).min * 7 * w);
       }
+      return dg;
     }
 
     function highDeathGrowth(deceased) {
-      if (deceased < 10) {
-        return [1,6.5,42,110,300];
-      } else {
-        return [1,7.6,35,108,230];
+      let dg = new Array(5).fill(0);
+      for (let w = 0; w <= 4; w++) {
+        dg[w] = Math.exp(alpha(deceased).max * 7 * w);
       }
+      return dg;
     }
 
     let stateParams = binStateCountsTill(dates[0], stateTimeSeries);

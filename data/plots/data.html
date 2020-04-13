@@ -30,7 +30,7 @@ function init(data)
   // for a state
   let chartText = "";
   let o0 = new Date("20-Mar-20");
-  const stateName = "Karnataka";
+  const stateName = "Telangana";
   //const category = "reported";
   const category = "deceased";
   {
@@ -73,7 +73,6 @@ chartText += "</br>ACTUAL======================</br>"
   }
   }
 $("#chart").html(chartText);
-
 
 /*
   // generate for district
@@ -119,9 +118,8 @@ $("#chart").html(chartText);
 */
 
 
-
-
 /*
+
   // generate for country
   let chartText = "";
   let o0 = new Date("20-Mar-20");
@@ -135,7 +133,7 @@ $("#chart").html(chartText);
     for (let i = 1; i <= 4; i++) {
       const step = j * 3 + i * 7;
       const day = model.dates[i];
-      const category = "deceased";
+      const category = "reported";
       const mod_val = model.countryStat(category, model.lowParams, day);
       const wst_val = model.countryStat(category, model.highParams, day);
       const ext_val = model.countryStat(category, model.lowParams, day, true);
