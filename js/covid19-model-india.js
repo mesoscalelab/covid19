@@ -441,11 +441,12 @@ class Covid19ModelIndia extends Covid19Model
 
     function alpha(d)
     {
-      if      (  0 <= d && d <  20) return { min : 0.16, max : 0.19 };
-      else if ( 20 <= d && d <  40) return { min : 0.13, max : 0.16 };
-      else if ( 40 <= d && d <  80) return { min : 0.11, max : 0.15 };
-      else if ( 80 <= d && d < 160) return { min : 0.11, max : 0.16 };
-      else if (160 <= d && d < 640) return { min : 0.16, max : 0.18 };
+      if      (  0 <= d && d <  20) return { min : 0.17, max : 0.20 };
+      else if ( 20 <= d && d <  40) return { min : 0.15, max : 0.18 };
+      else if ( 40 <= d && d <  80) return { min : 0.13, max : 0.16 };
+      else if ( 80 <= d && d < 160) return { min : 0.13, max : 0.16 };
+      else if (160 <= d && d < 320) return { min : 0.14, max : 0.17 };
+      else if (320 <= d && d < 640) return { min : 0.15, max : 0.17 };
       else if (640 <= d)            return { min : 0.13, max : 0.15 };
     }
 

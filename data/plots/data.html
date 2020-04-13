@@ -21,21 +21,52 @@ Promise.all(promises).then(function(data) {
   init(data);
 });
 
-function init(data)
+function listStatsForCountry(startDate, category, statesSeries, caseSeries)
 {
-  let statesSeries = data[0].states_daily;
-  let caseSeries   = data[1].raw_data;
-
-
-  // for a state
   let chartText = "";
-  let o0 = new Date("20-Mar-20");
-  const stateName = "Telangana";
-  //const category = "reported";
-  const category = "deceased";
-  {
   for (let j = 0; j < 10; j++) {
-    let t0 = new Date(o0);
+    let t0 = new Date(startDate);
+    t0.setDate(t0.getDate() + j * 3);
+    if (t0 > new Date())
+      break;
+    let model = new Covid19ModelIndia(t0, statesSeries, caseSeries);
+    for (let i = 1; i <= 4; i++) {
+      const step = j * 3 + i * 7;
+      const day = model.dates[i];
+      const mod_val = model.countryStat(category, model.lowParams, day);
+      const wst_val = model.countryStat(category, model.highParams, day);
+      const ext_val = model.countryStat(category, model.lowParams, day, true);
+      chartText += step + "," + mod_val + "," + wst_val + "," + ext_val + "</br>";
+    }
+  }
+  chartText += "</br>ACTUAL======================</br>"
+  let model = new Covid19ModelIndia(new Date(), statesSeries, caseSeries);
+  for (let i = -10; i < 100; i++) {
+    let day = new Date(startDate);
+    day.setDate(day.getDate() + i);
+    const stateParams = binStateCountsTill(day, statesSeries);
+    let actual_val = 0;
+    for (let state = 0; state < model.numStates; state++) {
+      if (category == "reported") {
+        actual_val += stateParams[state].confirmed;
+      } else if (category == "deceased") {
+        actual_val += stateParams[state].deceased;
+      } else {
+        break;
+      }
+    }
+    if (day > new Date())
+      break;
+    chartText += i + "," + actual_val + "</br>";
+  }
+  $("#chart").html(chartText);
+}
+
+function listStatsForState(stateName, startDate, category, statesSeries, caseSeries)
+{
+  let chartText = "";
+  for (let j = 0; j < 10; j++) {
+    let t0 = new Date(startDate);
     t0.setDate(t0.getDate() + j * 3);
     if (t0 > new Date())
       break;
@@ -50,12 +81,10 @@ function init(data)
       chartText += step + "," + mod_val + "," + wst_val + "," + ext_val + "</br>";
     }
   }
-  }
-chartText += "</br>ACTUAL======================</br>"
-  {
+  chartText += "</br>ACTUAL======================</br>"
   let model = new Covid19ModelIndia(new Date(), statesSeries, caseSeries);
   for (let i = -10; i < 100; i++) {
-    let day = new Date(o0);
+    let day = new Date(startDate);
     day.setDate(day.getDate() + i);
     var stateParams = binStateCountsTill(day, statesSeries);
     var state = model.indexStateName(stateName);
@@ -71,17 +100,14 @@ chartText += "</br>ACTUAL======================</br>"
       break;
     chartText += i + "," + actual_val + "</br>";
   }
-  }
-$("#chart").html(chartText);
+  $("#chart").html(chartText);
+}
 
-/*
-  // generate for district
-  let chartText = "";
-  let o0 = new Date("20-Mar-20");
-  const districtNameKey = "Bengaluru.Karnataka";
+function listStatsForDistrict(districtNameKey, startDate, category, statesSeries, caseSeries)
 {
+  let chartText = "";
   for (let j = 0; j < 10; j++) {
-    let t0 = new Date(o0);
+    let t0 = new Date(startDate);
     t0.setDate(t0.getDate() + j * 3);
     if (t0 > new Date())
       break;
@@ -97,15 +123,11 @@ $("#chart").html(chartText);
       chartText += step + "," + mod_val + "," + wst_val + "," + ext_val + "</br>";
     }
   }
-}
-chartText += "</br>ACTUAL REPORTED======================</br>"
-{
+  chartText += "</br>ACTUAL======================</br>"
   let model = new Covid19ModelIndia(new Date(), statesSeries, caseSeries);
-console.log(model.districtExtrapolFacA[model.indexDistrictNameKey(districtNameKey)]);
-console.log(model.districtExtrapolFacC[model.indexDistrictNameKey(districtNameKey)]);
   const district = model.indexDistrictNameKey(districtNameKey);
   for (let i = -10; i < 100; i++) {
-    let day = new Date(o0);
+    let day = new Date(startDate);
     day.setDate(day.getDate() + i);
     const actualDistrictCounts = model.binCountsByDistrict(caseSeries, day);
     const actual_reported = actualDistrictCounts[district];
@@ -113,69 +135,19 @@ console.log(model.districtExtrapolFacC[model.indexDistrictNameKey(districtNameKe
       break;
     chartText += i + "," + actual_reported + "</br>";
   }
+  $("#chart").html(chartText);
 }
-$("#chart").html(chartText);
-*/
 
-
-/*
-
-  // generate for country
-  let chartText = "";
-  let o0 = new Date("20-Mar-20");
+function init(data)
 {
-  for (let j = 0; j < 10; j++) {
-    let t0 = new Date(o0);
-    t0.setDate(t0.getDate() + j * 3);
-    if (t0 > new Date())
-      break;
-    let model = new Covid19ModelIndia(t0, statesSeries, caseSeries);
-    for (let i = 1; i <= 4; i++) {
-      const step = j * 3 + i * 7;
-      const day = model.dates[i];
-      const category = "reported";
-      const mod_val = model.countryStat(category, model.lowParams, day);
-      const wst_val = model.countryStat(category, model.highParams, day);
-      const ext_val = model.countryStat(category, model.lowParams, day, true);
-      chartText += step + "," + mod_val + "," + wst_val + "," + ext_val + "</br>";
-    }
-  }
-}
-chartText += "</br>ACTUAL REPORTED======================</br>"
-{
-  let model = new Covid19ModelIndia(new Date(), statesSeries, caseSeries);
-  for (let i = -10; i < 100; i++) {
-    let day = new Date(o0);
-    day.setDate(day.getDate() + i);
-    const actualDistrictCounts = model.binCountsByDistrict(caseSeries, day);
-    let actual_reported = 0;
-    for (let district = 0; district < model.numDistricts; district++) {
-      actual_reported += actualDistrictCounts[district];
-    }
-    if (day > new Date())
-      break;
-    chartText += i + "," + actual_reported + "</br>";
-  }
-}
-chartText += "</br>ACTUAL REPORTED======================</br>"
-{
-  let model = new Covid19ModelIndia(new Date(), statesSeries, caseSeries);
-  for (let i = -10; i < 100; i++) {
-    let day = new Date(o0);
-    day.setDate(day.getDate() + i);
-    const stateParams = binStateCountsTill(day, statesSeries);
-    let actual_deaths = 0;
-    for (let state = 0; state < model.numStates; state++) {
-      actual_deaths += stateParams[state].deceased;
-    }
-    if (day > new Date())
-      break;
-    chartText += i + "," + actual_deaths + "</br>";
-  }
-}
-$("#chart").html(chartText);
-*/
+  let statesSeries = data[0].states_daily;
+  let caseSeries   = data[1].raw_data;
 
+  listStatsForCountry("20-Mar-20", "deceased", statesSeries, caseSeries);
+
+  //listStatsForState("Maharashtra", "20-Mar-20", "deceased", statesSeries, caseSeries);
+
+  //listStatsForDistrict("Mumbai.Maharashtra", "20-Mar-20", "deceased", statesSeries, caseSeries);
 }
 </script>
 </body>
