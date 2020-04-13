@@ -413,7 +413,8 @@ class Covid19Model
 
 class Covid19ModelIndia extends Covid19Model
 {
-  constructor(baseDate, stateTimeSeries, caseTimeSeries) {
+  constructor(baseDate, stateTimeSeries, caseTimeSeries)
+  {
 
     // set base date and next four weeks
     let dates = new Array(4);
@@ -422,50 +423,59 @@ class Covid19ModelIndia extends Covid19Model
       dates[i].setDate(dates[i].getDate() + i * 7);
     }
 
-    // carrier growth functions
-    function lowCarrierGrowth(deceased) {
-      if (deceased < 10) {
-        return [1,3,20,70,150];
-      } else {
-        return [1,4.5,18,62,140];
-      }
-    }
+  function beta(d)
+  {
+    if      (   0 <= d && d <  100) return { min : 0.14, max : 0.17 };
+    else if ( 100 <= d && d <  500) return { min : 0.20, max : 0.23 };
+    else if ( 500 <= d && d < 1000) return { min : 0.18, max : 0.20 };
+    else if (1000 <= d && d < 2000) return { min : 0.17, max : 0.18 };
+    else if (2000 <= d)             return { min : 0.15, max : 0.17 };
+  }
 
-    function highCarrierGrowth(deceased) {
-      if (deceased < 10) {
-        return [1,7,50,120,400];
-      } else {
-        return [1,8,40,118,320];
-      }
+  // carrier growth functions
+  function lowCarrierGrowth(deceased) {
+    let cg = new Array(5).fill(0);
+    for (let w = 0; w <= 4; w++) {
+      cg[w] = Math.exp(beta(deceased).min * 7 * w);
     }
+    return cg;
+  }
 
-    function alpha(d)
-    {
-      if      (  0 <= d && d <  20) return { min : 0.17, max : 0.20 };
-      else if ( 20 <= d && d <  40) return { min : 0.15, max : 0.18 };
-      else if ( 40 <= d && d <  80) return { min : 0.13, max : 0.16 };
-      else if ( 80 <= d && d < 160) return { min : 0.13, max : 0.16 };
-      else if (160 <= d && d < 320) return { min : 0.14, max : 0.17 };
-      else if (320 <= d && d < 640) return { min : 0.15, max : 0.17 };
-      else if (640 <= d)            return { min : 0.13, max : 0.15 };
+  function highCarrierGrowth(deceased) {
+    let cg = new Array(5).fill(0);
+    for (let w = 0; w <= 4; w++) {
+      cg[w] = Math.exp(beta(deceased).max * 7 * w);
     }
+    return cg;
+  }
 
-    // death growth functions
-    function lowDeathGrowth(deceased) {
-      let dg = new Array(5).fill(0);
-      for (let w = 0; w <= 4; w++) {
-        dg[w] = Math.exp(alpha(deceased).min * 7 * w);
-      }
-      return dg;
-    }
+  function alpha(d)
+  {
+    if      (  0 <= d && d <  20) return { min : 0.17, max : 0.20 };
+    else if ( 20 <= d && d <  40) return { min : 0.15, max : 0.18 };
+    else if ( 40 <= d && d <  80) return { min : 0.13, max : 0.16 };
+    else if ( 80 <= d && d < 160) return { min : 0.13, max : 0.16 };
+    else if (160 <= d && d < 320) return { min : 0.14, max : 0.17 };
+    else if (320 <= d && d < 640) return { min : 0.15, max : 0.17 };
+    else if (640 <= d)            return { min : 0.13, max : 0.15 };
+  }
 
-    function highDeathGrowth(deceased) {
-      let dg = new Array(5).fill(0);
-      for (let w = 0; w <= 4; w++) {
-        dg[w] = Math.exp(alpha(deceased).max * 7 * w);
-      }
-      return dg;
+  // death growth functions
+  function lowDeathGrowth(deceased) {
+    let dg = new Array(5).fill(0);
+    for (let w = 0; w <= 4; w++) {
+      dg[w] = Math.exp(alpha(deceased).min * 7 * w);
     }
+    return dg;
+  }
+
+  function highDeathGrowth(deceased) {
+    let dg = new Array(5).fill(0);
+    for (let w = 0; w <= 4; w++) {
+      dg[w] = Math.exp(alpha(deceased).max * 7 * w);
+    }
+    return dg;
+  }
 
     let stateParams = binStateCountsTill(dates[0], stateTimeSeries);
     super(caseTimeSeries,

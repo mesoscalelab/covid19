@@ -1,27 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-</head>
-
-<body>
-<div id="chart"></div>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script src="../../js/covid19-model-india.js"></script>
-<script>
-let urls = [];
-urls.push("https://api.covid19india.org/states_daily.json");
-urls.push("https://api.covid19india.org/raw_data.json");
-
-let promises = [];
-urls.forEach(function(url) {
-  promises.push(fetch(url).then(data => data.json()));
-});
-
-Promise.all(promises).then(function(data) {
-  init(data);
-});
-
-function listStatsForCountry(startDate, category, statesSeries, caseSeries)
+function listStatLimitsForCountry(startDate, category, statesSeries, caseSeries)
 {
   let chartText = "";
   for (let j = 0; j < 10; j++) {
@@ -33,13 +10,11 @@ function listStatsForCountry(startDate, category, statesSeries, caseSeries)
     for (let i = 1; i <= 4; i++) {
       const step = j * 3 + i * 7;
       const day = model.dates[i];
-      const mod_val = model.countryStat(category, model.lowParams, day);
-      const wst_val = model.countryStat(category, model.highParams, day);
-      const ext_val = model.countryStat(category, model.lowParams, day, true);
-      chartText += step + "," + mod_val + "," + wst_val + "," + ext_val + "</br>";
+      const min_val = model.countryStatLimit(category, day, "min");
+      const max_val = model.countryStatLimit(category, day, "max");
+      chartText += step + "," + min_val + "," + max_val + "</br>";
     }
   }
-  chartText += "</br>ACTUAL======================</br>"
   let model = new Covid19ModelIndia(new Date(), statesSeries, caseSeries);
   for (let i = -10; i < 100; i++) {
     let day = new Date(startDate);
@@ -59,10 +34,10 @@ function listStatsForCountry(startDate, category, statesSeries, caseSeries)
       break;
     chartText += i + "," + actual_val + "</br>";
   }
-  $("#chart").html(chartText);
+  return chartText;
 }
 
-function listStatsForState(stateName, startDate, category, statesSeries, caseSeries)
+function listStatLimitsForState(stateName, startDate, category, statesSeries, caseSeries)
 {
   let chartText = "";
   for (let j = 0; j < 10; j++) {
@@ -75,13 +50,11 @@ function listStatsForState(stateName, startDate, category, statesSeries, caseSer
     for (let i = 1; i <= 4; i++) {
       const step = j * 3 + i * 7;
       const day = model.dates[i];
-      const mod_val = model.stateStat(category, state, model.lowParams, day);
-      const wst_val = model.stateStat(category, state, model.highParams, day);
-      const ext_val = model.stateStat(category, state, model.lowParams, day, true);
-      chartText += step + "," + mod_val + "," + wst_val + "," + ext_val + "</br>";
+      const min_val = model.stateStatLimit(category, state, day, "min");
+      const max_val = model.stateStatLimit(category, state, day, "max");
+      chartText += step + "," + min_val + "," + max_val + "</br>";
     }
   }
-  chartText += "</br>ACTUAL======================</br>"
   let model = new Covid19ModelIndia(new Date(), statesSeries, caseSeries);
   for (let i = -10; i < 100; i++) {
     let day = new Date(startDate);
@@ -100,10 +73,10 @@ function listStatsForState(stateName, startDate, category, statesSeries, caseSer
       break;
     chartText += i + "," + actual_val + "</br>";
   }
-  $("#chart").html(chartText);
+  return chartText;
 }
 
-function listStatsForDistrict(districtNameKey, startDate, category, statesSeries, caseSeries)
+function listStatLimitsForDistrict(districtNameKey, startDate, category, statesSeries, caseSeries)
 {
   let chartText = "";
   for (let j = 0; j < 10; j++) {
@@ -117,13 +90,11 @@ function listStatsForDistrict(districtNameKey, startDate, category, statesSeries
       const step = j * 3 + i * 7;
       const day = model.dates[i];
       const category = "reported";
-      const mod_val = model.districtStat(category, district, model.lowParams, day);
-      const wst_val = model.districtStat(category, district, model.highParams, day);
-      const ext_val = model.districtStat(category, district, model.lowParams, day, true);
-      chartText += step + "," + mod_val + "," + wst_val + "," + ext_val + "</br>";
+      const min_val = model.districtStatLimit(category, district, day, "min");
+      const max_val = model.districtStatLimit(category, district, day, "max");
+      chartText += step + "," + min_val + "," + max_val + "</br>";
     }
   }
-  chartText += "</br>ACTUAL======================</br>"
   let model = new Covid19ModelIndia(new Date(), statesSeries, caseSeries);
   const district = model.indexDistrictNameKey(districtNameKey);
   for (let i = -10; i < 100; i++) {
@@ -135,20 +106,5 @@ function listStatsForDistrict(districtNameKey, startDate, category, statesSeries
       break;
     chartText += i + "," + actual_reported + "</br>";
   }
-  $("#chart").html(chartText);
+  return chartText;
 }
-
-function init(data)
-{
-  let statesSeries = data[0].states_daily;
-  let caseSeries   = data[1].raw_data;
-
-  listStatsForCountry("20-Mar-20", "deceased", statesSeries, caseSeries);
-
-  //listStatsForState("Maharashtra", "20-Mar-20", "deceased", statesSeries, caseSeries);
-
-  //listStatsForDistrict("Mumbai.Maharashtra", "20-Mar-20", "deceased", statesSeries, caseSeries);
-}
-</script>
-</body>
-</html>

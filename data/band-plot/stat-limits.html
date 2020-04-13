@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+
+<body>
+<div id="chart"></div>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="../../js/covid19-model-india.js"></script>
+<script src="stat-limits.js"></script>
+<script>
+let urls = [];
+urls.push("https://api.covid19india.org/states_daily.json");
+urls.push("https://api.covid19india.org/raw_data.json");
+
+let promises = [];
+urls.forEach(function(url) {
+  promises.push(fetch(url).then(data => data.json()));
+});
+
+Promise.all(promises).then(function(data) {
+  init(data);
+});
+
+function init(data)
+{
+  //const category      = "reported";
+  const category      = "deceased";
+  const level         = "country";
+  const districtName  = "Mumbai";
+  const stateName     = "Kerala";
+  const startDate     = "20-Mar-20";
+
+  let statesSeries = data[0].states_daily;
+  let caseSeries   = data[1].raw_data;  
+  let chartText    = "";
+
+  switch (level) {
+    case "country":
+      chartText = listStatLimitsForCountry(startDate, category, statesSeries, caseSeries);
+      console.log("India : " + category);
+    break;
+    case "state":
+      chartText = listStatLimitsForState(stateName, startDate, category, statesSeries, caseSeries);
+      console.log(stateName + " : " + category);
+    break;
+    case "district":
+      chartText = listStatLimitsForDistrict(districtName+"."+stateName, startDate, category, statesSeries, caseSeries);
+      console.log(districtName + " : " + category);
+    break;
+  }
+
+  document.getElementById("chart").innerHTML = chartText;
+}
+</script>
+</body>
+</html>
