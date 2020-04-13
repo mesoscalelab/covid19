@@ -490,49 +490,34 @@ class Covid19ModelIndia extends Covid19Model
     this.highParams = { n : -1, m : -1, x : 10, y : 2, cg : highCarrierGrowth, dg : highDeathGrowth, t : dates };
   }
 
-  countryStatLimit(category, date, limit)
+  countryStatLimit(category, date)
   {
-    const mod = this.countryStat(category, this.lowParams, date);
-    const wst = this.countryStat(category, this.highParams, date);
-    const ext = this.countryStat(category, this.lowParams, date, true);
-
-    if (limit == "min") {
-      return Math.min(mod, Math.min(wst, ext));
-    } else if (limit == "max") {
-      return Math.max(mod, Math.max(wst, ext));
-    } else {
-      return 0;
-    }
+    let values = new Array(3).fill(0);
+    values[0] = this.countryStat(category, this.lowParams, date);
+    values[1] = this.countryStat(category, this.highParams, date);
+    values[2] = this.countryStat(category, this.lowParams, date, true);
+    values.sort(function(a, b) {return a - b});
+    return { min : values[0], mid : values[1], max : values[2] };
   }
 
-  stateStatLimit(category, stateIndex, date, limit)
+  stateStatLimit(category, stateIndex, date)
   {
-    const mod = this.stateStat(category, stateIndex, this.lowParams, date);
-    const wst = this.stateStat(category, stateIndex, this.highParams, date);
-    const ext = this.stateStat(category, stateIndex, this.lowParams, date, true);
-
-    if (limit == "min") {
-      return Math.min(mod, Math.min(wst, ext));
-    } else if (limit == "max") {
-      return Math.max(mod, Math.max(wst, ext));
-    } else {
-      return 0;
-    }
+    let values = new Array(3).fill(0);
+    values[0] = this.stateStat(category, stateIndex, this.lowParams, date);
+    values[1] = this.stateStat(category, stateIndex, this.highParams, date);
+    values[2] = this.stateStat(category, stateIndex, this.lowParams, date, true);
+    values.sort(function(a, b) {return a - b});
+    return { min : values[0], mid : values[1], max : values[2] };
   }
 
   districtStatLimit(category, districtIndex, date, limit)
   {
-    const mod = this.districtStat(category, districtIndex, this.lowParams, date);
-    const wst = this.districtStat(category, districtIndex, this.highParams, date);
-    const ext = this.districtStat(category, districtIndex, this.lowParams, date, true);
-
-    if (limit == "min") {
-      return Math.min(mod, Math.min(wst, ext));
-    } else if (limit == "max") {
-      return Math.max(mod, Math.max(wst, ext));
-    } else {
-      return 0;
-    }
+    let values = new Array(3).fill(0);
+    values[0] = this.districtStat(category, districtIndex, this.lowParams, date);
+    values[1] = this.districtStat(category, districtIndex, this.highParams, date);
+    values[2] = this.districtStat(category, districtIndex, this.lowParams, date, true);
+    values.sort(function(a, b) {return a - b});
+    return { min : values[0], mid : values[1], max : values[2] };
   }
 }
 
@@ -636,6 +621,8 @@ function binStateCountsTill(date, data)
   chart.push(pack("wb", "West Bengal"));
   return chart;
 }
+
+//module.exports = { Covid19ModelIndia, binStateCountsTill };
 
 const itemParamsForCriticalUse = [
 { "id" : 1, "name" : "ventilators",    "use" : 1   },
