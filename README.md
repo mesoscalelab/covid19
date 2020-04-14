@@ -49,11 +49,43 @@ function init(data)
 }
 ```
 
+### Minimum, Mid-range and Maximum Projections
+Projected statistics for a specific district can be obtained from the model
+using
+```js
+const districtIndex = model.indexDistrictNameKey("Bengaluru.Karnataka");
+const stat = model.districtStatLimit("reported", districtIndex, new Date("10 April 2020"));
+```
+The above `districtStatLimit` function returns an object containing three
+values `{ min : ..., mid : ..., max : ...}`.
+
+Similar functions are available for country and state level
+```js
+// state level
+const stateIndex = model.indexStateName("Karnataka");
+var stat = model.stateStatLimit("reported", stateIndex, new Date("10 April 2020"));
+
+// country level
+var stat = model.countryStatLimit("reported", new Date("10 April 2020"));
+```
+
+### Projection Method Types
 The model has two sets of parameters predefined for use:
 + `model.lowParams` : these parameters result low to moderate infection projections
 + `model.highParams`: these parameters result in high infection projections
 These parameters can be passed to generate the default low and high statistics.
+In addition, the model provides a time-series extrapolation method to generate
+projections. The functions for obtaining these low, high and extrapolation case
+projections are:
+```js
+const districtIndex = model.indexDistrictNameKey("Bengaluru.Karnataka");
+const lowStat = model.districtStat("reported", districtIndex, model.lowParams, new Date("10 April 2020"));
+const highStat = model.districtStat("reported", districtIndex, model.highParams, new Date("10 April 2020"));
+const extrapolStat = model.districtStat("reported", districtIndex, model.lowParams, new Date("10 April 2020"), true);
+```
+Similar functions are available for state and country level.
 
+### Projection Time Windows
 The model is tuned to predict patient statistics every week, on the week from
 a baseline starting date. The array of dates corresponding to each week
 can be obtained using `model.dates`. `model.dates[0]` represents the baseline
@@ -66,20 +98,15 @@ var districtIndex = model.indexDistrictNameKey("Bengaluru.Karnataka");
 var numCritical = model.districtStat("critical", districtIndex, model.lowParams, model.dates[2]);
 ```
 
-Statistics for the following categories can be output by the model:
-+ `"reported"` : Total number of infections reported as of `t=0`
-+ `"carriers"` : Estimated number of carriers for the given date
-+ `"critical"` : Estimated number of critically ill patients for the given date
-
-In addition, the number of items required for critically ill patients can be obtained
-using:
-```js
-var itemIndex = model.indexItemName("pumps");
-var numPumps = model.itemStat(itemIndex, numCritical);
-```
-The following types of items are currently supported:
-+ `"ventilators"`
-+ `"pumps"`
+### Projection Categories
+Projected cumulative counts upto a given date can be provided
+by the model for the following categories:
++ `"reported"` : Number of infections reported
++ `"carriers"` : Number of carriers (symtomatic patients + asymptomatic)
++ `"critical"` : Number of critically ill patients
++ `"deceased"` : Number of deceased
++ `"ventilators"` : Number of ventilators required
++ `"pumps"` : Number of infusion pumps required
 
 In addition to the calculating the index of the item or category by name, the
 index can be calculated from an ID as well. See the JSON objects defined in
