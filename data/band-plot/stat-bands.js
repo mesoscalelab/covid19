@@ -95,7 +95,6 @@ function districtProjectionBands(startDate, t0Gap, category, districtName, state
     let model = new Covid19ModelIndia(t0, statesSeries, caseSeries);
     const districtNameKey = model.districtNameKey(districtName, stateName);
     const district = model.indexDistrictNameKey(districtNameKey);
-console.log(districtNameKey + " : " + district);
     for (let week = 1; week <= 4; week++) {
       const stat = model.districtStatLimit(category, district, model.dates[week]);
       const step = daysSince(startDate, t0) + 7 * week;

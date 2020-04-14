@@ -1,11 +1,29 @@
 #!/bin/bash
 
 sinceDate="20 March 2020"
-level="state"
-stateName=$1
+level=$1
+stateName="none"
 districtName="none"
-category=$2
+category="none"
 region="none"
+
+if [ "$level" == "country" ]
+then
+  category=$2
+fi
+
+if [ "$level" == "state" ]
+then
+  stateName=$2
+  category=$3
+fi
+
+if [ "$level" == "district" ]
+then
+  districtName=$2
+  stateName=$3
+  category=$4
+fi
 
 if [ "$category" == "r" ]
 then

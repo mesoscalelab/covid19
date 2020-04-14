@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# country level
+./plot.sh "country" "r"
+./plot.sh "country" "d"
+
+# state level
+./plot.sh "state" "Maharashtra" "r"
+./plot.sh "state" "Delhi" "r"
+./plot.sh "state" "Tamil Nadu" "r"
+./plot.sh "state" "Rajasthan" "r"
+./plot.sh "state" "Madhya Pradesh" "r"
+./plot.sh "state" "Telangana" "r"
+./plot.sh "state" "Gujarat" "r"
+./plot.sh "state" "Uttar Pradesh" "r"
+./plot.sh "state" "Andhra Pradesh" "r"
+./plot.sh "state" "Kerala" "r"
+./plot.sh "state" "Jammu and Kashmir" "r"
+./plot.sh "state" "Karnataka" "r"
+./plot.sh "state" "Haryana" "r"
+./plot.sh "state" "Punjab" "r"
+
+./plot.sh "state" "Maharashtra" "d"
+./plot.sh "state" "Delhi" "d"
+./plot.sh "state" "Tamil Nadu" "d"
+./plot.sh "state" "Rajasthan" "d"
+./plot.sh "state" "Madhya Pradesh" "d"
+./plot.sh "state" "Telangana" "d"
+./plot.sh "state" "Gujarat" "d"
+./plot.sh "state" "Uttar Pradesh" "d"
+./plot.sh "state" "Andhra Pradesh" "d"
+./plot.sh "state" "Kerala" "d"
+./plot.sh "state" "Jammu and Kashmir" "d"
+./plot.sh "state" "Karnataka" "d"
+./plot.sh "state" "Haryana" "d"
+./plot.sh "state" "Punjab" "d"
+
+# district level
+./plot.sh "district" "Mumbai" "Maharashtra" "r"
+./plot.sh "district" "Pune" "Maharashtra" "r"
+./plot.sh "district" "Chennai" "Tamil Nadu" "r"
+./plot.sh "district" "Indore" "Madhya Pradesh" "r"
+./plot.sh "district" "Bhopal" "Madhya Pradesh" "r"
+./plot.sh "district" "Hyderabad" "Telangana" "r"
+./plot.sh "district" "Ahmadabad" "Gujarat" "r"
+./plot.sh "district" "Agra" "Uttar Pradesh" "r"
+./plot.sh "district" "Kasaragod" "Kerala" "r"
+./plot.sh "district" "Bengaluru" "Karnataka" "r"
