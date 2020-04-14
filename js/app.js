@@ -116,8 +116,9 @@ function setAllStats(model, config)
     row.fill("")
     row[1] = "India"; 
     for (let i = 2; i < row.length; i+=2) {
-      row[i]   = model.countryStatLimit(config.category, model.dates[i/2], "min");
-      row[i+1] = model.countryStatLimit(config.category, model.dates[i/2], "max");
+      const stats = model.countryStatLimit(config.category, model.dates[i/2]);
+      row[i]   = stats.min;
+      row[i+1] = stats.max;
     }
     createRow(row, true);
 
@@ -125,8 +126,8 @@ function setAllStats(model, config)
       $(this).html(model.dates[0].toLocaleDateString("en-IN"));
     });
 
-    $("#t0-confirmed").html(model.countryStatLimit("reported", model.t0, "min"));
-    $("#t0-estimated").html(model.countryStatLimit("carriers", model.t0, "max"));
+    $("#t0-confirmed").html(model.countryStatLimit("reported", model.t0).min);
+    $("#t0-estimated").html(model.countryStatLimit("carriers", model.t0).min);
   }
 
   row.fill("");
@@ -142,8 +143,9 @@ function setAllStats(model, config)
     row.fill("");
     row[1] = model.stateParams[state].name; 
     for (let i = 2; i < row.length; i+=2) {
-      row[i]   = model.stateStatLimit(config.category, state, model.dates[i/2], "min");
-      row[i+1] = model.stateStatLimit(config.category, state, model.dates[i/2], "max");
+      const stats = model.stateStatLimit(config.category, state, model.dates[i/2]);
+      row[i]   = stats.min;
+      row[i+1] = stats.max;
     }
     createRow(row, false, "", "top-states-stats");
   }
@@ -166,8 +168,9 @@ function setAllStats(model, config)
     row.fill("");
     row[1] = districtName + ", " + stateName; 
     for (let i = 2; i < row.length; i+=2) {
-      row[i]   = model.districtStatLimit(config.category, district, model.dates[i/2], "min");
-      row[i+1] = model.districtStatLimit(config.category, district, model.dates[i/2], "max");
+      const stats = model.districtStatLimit(config.category, district, model.dates[i/2]);
+      row[i]   = stats.min;
+      row[i+1] = stats.max;
     }
     createRow(row, false, "", "top-districts-stats");
     topDistrictsCount++;
@@ -191,8 +194,9 @@ function setAllStats(model, config)
     let stateName = model.stateParams[state].name; 
     row[1] = stateName; 
     for (let i = 2; i < row.length; i+=2) {
-      row[i]   = model.stateStat(config.category, state, model.lowParams,  model.dates[i/2]);
-      row[i+1] = model.stateStat(config.category, state, model.highParams, model.dates[i/2]);
+      const stats = model.stateStatLimit(config.category, state, model.dates[i/2]);
+      row[i]   = stats.min;
+      row[i+1] = stats.max;
     }
     const stateIDValue = stateName.replace(/\s/g, "").concat("-stats");
     createRow(row, true, stateIDValue);
@@ -202,8 +206,9 @@ function setAllStats(model, config)
       row.fill("")
       row[1] = model.districtParams[district].name; 
       for (let i = 2; i < row.length; i+=2) {
-        row[i]   = model.districtStat(config.category, district, model.lowParams,  model.dates[i/2]);
-        row[i+1] = model.districtStat(config.category, district, model.highParams, model.dates[i/2]);
+        const stats = model.districtStatLimit(config.category, district, model.dates[i/2]);
+        row[i]   = stats.min;
+        row[i+1] = stats.max;
       }
       createRow(row, false, "", stateIDValue);
     }
