@@ -196,7 +196,7 @@ class Covid19Model
     const dgrowth       = this.interpolateAt(date, deceased0, params.dg, params.t);
     const m             = dgrowth * m0 / cgrowth;
     const seconds       = Math.abs(date - this.t0) / 1000;
-    const days          = Math.floor(seconds / 86400);
+    const days          = seconds / 86400.0;
     const facA          = this.districtExtrapolFacA[districtIndex];
     const facC          = this.districtExtrapolFacC[districtIndex];
     const reported      = Math.floor(facA * Math.exp(facC * days));
