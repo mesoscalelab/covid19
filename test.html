@@ -1,0 +1,30 @@
+<body>
+<script src="js/covid19-model-india.js"></script>
+<script>
+let urls = [];
+urls.push("https://api.covid19india.org/states_daily.json");
+urls.push("https://api.covid19india.org/raw_data.json");
+
+let promises = [];
+urls.forEach(function(url) {
+  promises.push(fetch(url).then(data => data.json()));
+});
+
+Promise.all(promises).then(function(data) {
+  init(data);
+});
+
+function init(data)
+{
+  let statesSeries = data[0].states_daily;
+  let caseSeries   = data[1].raw_data;
+
+  let t0 = new Date();
+  t0.setDate(t0.getDate() - 1);
+  let model = new Covid19ModelIndia(t0, statesSeries, caseSeries);
+  const district = model.indexDistrictNameKey("Mumbai.Maharashtra");
+  const stat = model.districtStatLimit("deceased", district, model.dates[1]);
+  console.log(stat);
+}
+</script>
+</body>
