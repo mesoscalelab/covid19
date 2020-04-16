@@ -622,7 +622,46 @@ function binStateCountsTill(date, data)
   return chart;
 }
 
-//module.exports = { Covid19ModelIndia, binStateCountsTill };
+function apiNewDistricts(caseSeries)
+{
+  let dateParser = function (dateString)
+  {
+    let p = dateString.split("/");
+    return new Date(p[2], p[1] - 1, p[0]);
+  }
+
+  let apiMap = new Map();
+  for (let i = 0; i < caseSeries.length; i++) {
+    const date = dateParser(caseSeries[i].dateannounced);
+    const stateName = caseSeries[i].detectedstate;
+    if (stateName === "")
+      continue;
+    let districtName = caseSeries[i].detecteddistrict;
+    if (districtName === "")
+      continue;
+    let nameKey = districtName + "." + stateName;
+    if (!apiMap.has(nameKey))
+      apiMap.set(nameKey, "absent");
+  }
+
+  for (let i = 0; i < districtParamsForIndia.length; i++) {
+    let districtName = districtParamsForIndia[i].name;
+    let stateName = districtParamsForIndia[i].state;
+    if (districtName == "Unclassified")
+      continue;
+    let nameKey = districtName + "." + stateName;
+    if (apiMap.has(nameKey))
+      apiMap.set(nameKey, "present");
+  }
+  
+  let diff = [];
+  for (const [key, value] of apiMap.entries()) {
+    if (value == "absent") {
+      diff.push(key);
+    }
+  }
+  return diff;
+}  
 
 const itemParamsForCriticalUse = [
 { "id" : 1, "name" : "ventilators",    "use" : 1   },
@@ -1399,3 +1438,5 @@ const districtParamsForIndia = [
 { "id" : 763, "name" : "Unclassified", "state" : "Uttarakhand"},
 { "id" : 764, "name" : "Unclassified", "state" : "West Bengal"}
 ];
+
+//module.exports = { Covid19ModelIndia, binStateCountsTill };
