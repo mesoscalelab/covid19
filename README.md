@@ -123,6 +123,6 @@ with `module.exports...`
 3. `npm install node-fetch`
 4. `./selected-plots.sh` for generating plots for a selected few states and districts
 5. `./plot.sh <arg1> <arg2> ...` for generating plots for a specific region
-  + `./plot.sh "country" "r"` for India plots
+  + `./plot.sh "country" "reported"` for India plots
   + `./plot.sh "state" "Karnataka" "reported"` for states
   + `./plot.sh "district" "Bengaluru" "Karnataka" "reported"` for districts
