@@ -25,29 +25,20 @@ then
   category=$4
 fi
 
-if [ "$category" == "r" ]
+if [ "$category" == "r" ] || [ "$category" == "reported" ]
 then
   category="reported"
-elif [ "$category" == "reported" ]
-then
-
-elif [ "$category" == "d" ]
+elif [ "$category" == "d" ] || [ "$category" == "deceased" ]
 then
   category="deceased"
-elif [ "$category" == "deceased" ]
-then
-else
-  echo "Please provide a valid category ..."
-  exit 1
-fi
-
-if [ "$category" == "deceased" ]
-then
   if [ "$level" == "district" ]
   then
     echo "Cannot show actual deceased trend for districts..."
     exit 1
   fi
+else
+  echo "Please provide a valid category ..."
+  exit 1
 fi
 
 if [ "$level" == "country" ]
