@@ -417,9 +417,13 @@ class Covid19ModelIndia extends Covid19Model
   {
 
     // set base date and next four weeks
+    const day = baseDate.getDate();
+    const month = baseDate.getMonth();
+    const year = baseDate.getFullYear();
+    const roundBaseDate = new Date(year, month, day);
     let dates = new Array(4);
     for (let i = 0; i <= 4; i++) {
-      dates[i] = new Date(baseDate);
+      dates[i] = new Date(roundBaseDate);
       dates[i].setDate(dates[i].getDate() + i * 7);
     }
 
