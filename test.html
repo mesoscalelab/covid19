@@ -19,14 +19,14 @@ function init(data)
   let statesSeries = data[0].states_daily;
   let caseSeries   = data[1].raw_data;
 
-  console.log(apiNewDistricts(caseSeries));
-
   let t0 = new Date();
   t0.setDate(t0.getDate() - 1);
   let model = new Covid19ModelIndia(t0, statesSeries, caseSeries);
   const district = model.indexDistrictNameKey("Mumbai.Maharashtra");
-  const stat = model.districtStatLimit("deceased", district, model.dates[1]);
-  console.log(stat);
+  const stat1 = model.districtStat("deceased", district, model.lowParams, new Date("18-Apr-20"), true);
+  const stat2 = model.districtStat("deceased", district, model.lowParams, new Date("20-Apr-20"), true);
+  console.log(stat1);
+  console.log(stat2);
 }
 </script>
 </body>
