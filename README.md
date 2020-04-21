@@ -117,12 +117,10 @@ Band plots for projections can be generated using Gnuplot via a sequence of
 shell scripts. The relevant scripts are given in the `data/band-plot` folder.
 Projection output data from `stats-band.js` can be piped to a csv file by
 launching the script JS script using node as follows:
-1. Uncomment the last line of `js/covid19-model-india.js`, i.e. the line
-with `module.exports...`
-2. Enter the `data/band-plot` folder.
-3. `npm install node-fetch`
-4. `./selected-plots.sh` for generating plots for a selected few states and districts
-5. `./plot.sh <arg1> <arg2> ...` for generating plots for a specific region
+1. Enter the `data/band-plot` folder.
+2. `npm install node-fetch`
+3. `./selected-plots.sh` for generating plots for a selected few states and districts
+4. `./plot.sh <arg1> <arg2> ...` for generating plots for a specific region
   + `./plot.sh "country" "reported"` for India plots
   + `./plot.sh "state" "Karnataka" "reported"` for states
   + `./plot.sh "district" "Bengaluru" "Karnataka" "reported"` for districts
