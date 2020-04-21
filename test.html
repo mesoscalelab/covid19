@@ -31,27 +31,24 @@ function init(data)
   t0.setDate(t0.getDate() - 1);
   console.log("t0 = " + t0);
 
+  let t = new Date("2020-04-20");
+  let category = "reported";
+  const stateName = "Maharashtra";
+  const districtName = "Mumbai";
+
   let model = new Covid19ModelIndia(t0, statesSeries, caseSeries);
 
-  const cstat = model.countryStatLimit("deceased", new Date("2020-04-20"));
+  const cstat = model.countryStatLimit(category, t);
   console.log(cstat);
 
-  const stateName = "Karnataka";
   const state = model.indexStateName(stateName);
-  const sstat = model.stateStat("deceased", state, model.lowParams, new Date("2020-04-20"), true);
-  console.log("state deceased0 = " + sstat);
-  console.log("c = " + model.stateDeceasedExtrapolFacC[state]);
+  const sstat = model.stateStatLimit(category, state, t);
+  console.log(sstat);
 
-  let total = 0;
-  const districts = model.listDistrictsOfState(state);
-  for (let i = 0; i < districts.length; i++) {
-    const district = districts[i];
-    //const districtNameKey = "Mumbai.Maharashtra";
-    //const district = model.indexDistrictNameKey(districtNameKey);
-    const dstat = model.districtStat("deceased", district, model.lowParams, new Date("2020-04-20"), true);
-    total += dstat;
-  }
-  console.log("total of floored deceased0 = " + total);
+  const districtNameKey = model.districtNameKey(districtName, stateName);
+  const district = model.indexDistrictNameKey(districtNameKey);
+  const dstat = model.districtStatLimit(category, district, t);
+  console.log(dstat);
   
 }
 </script>
