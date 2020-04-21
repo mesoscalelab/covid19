@@ -616,9 +616,15 @@ function binStateCountsTill(date, data)
   let recovered = new Array(stateAbbrvs.length).fill(0);
   let deceased  = new Array(stateAbbrvs.length).fill(0);
 
+  let dateParser = function (dateString)
+  {
+    let p = dateString.split("-");
+    return new Date(p[0] + " " + p[1] + " " + "20" + p[2]);
+  }
+
   for (let i = 0; i < data.length; i++) {
     const info = data[i];
-    if (new Date(info.date) > date)
+    if (dateParser(info.date) > date)
       continue;
     for (let j = 0; j < stateAbbrvs.length; j++) {
       if (info.status === "Confirmed")

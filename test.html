@@ -1,3 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+<head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
+  <title>Test Functions</title>
+</head>
 <body>
 <script src="js/covid19-model-india.js"></script>
 <script>
@@ -21,12 +29,28 @@ function init(data)
 
   let t0 = new Date();
   t0.setDate(t0.getDate() - 1);
+  console.log("t0 = " + t0);
+
+  const tau = 7;
+  let t0mtau = new Date(t0);
+  t0mtau.setDate(t0mtau.getDate()-tau);
+  console.log("t0mtau = " + t0mtau);
+
+  const stateParams = binStateCountsTill(t0mtau, statesSeries);
+
+  let total = 0;
+  for (let state = 0; state < stateParams.length; state++) {
+    total += stateParams[state].deceased;
+  }
+  console.log("total = " + total);
+
   let model = new Covid19ModelIndia(t0, statesSeries, caseSeries);
   const district = model.indexDistrictNameKey("Mumbai.Maharashtra");
-  const stat1 = model.districtStat("deceased", district, model.lowParams, new Date("18-Apr-20"), true);
-  const stat2 = model.districtStat("deceased", district, model.lowParams, new Date("20-Apr-20"), true);
+  const stat1 = model.districtStat("deceased", district, model.lowParams, new Date("2020-04-20"), true);
+  const stat2 = model.districtStat("deceased", district, model.lowParams, new Date("2020-04-22"), true);
   console.log(stat1);
   console.log(stat2);
 }
 </script>
 </body>
+</html>
