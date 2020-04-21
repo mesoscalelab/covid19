@@ -4,7 +4,7 @@ sincedate = ARG1
 category  = ARG2
 region    = ARG3
 set terminal pngcairo size 640,640 enhanced font 'Verdana,10'
-set title "Adaptive Projections of ".category." count for ".region."\n made at t_0 for t_0+1, t_0+2, t_0+3 and t_0+4 weeks"
+set title "Adaptive Projections of ".category." count for ".region."\n made at the dates shown"
 set xlabel "Days since ".sincedate
 set ylabel "Projection for ".category." count"
 set xrange[0:50]
@@ -15,17 +15,46 @@ set style fill noborder
 set log y
 set format y "10^{%T}"
 set datafile separator ","
-plot   "temp-band-data1.csv"  u 1:2:4 w filledcu fs transparent solid 1.00 lc rgb "dark-green" ti "t_0 = 13 Apr"
-replot "temp-band-data2.csv"  u 1:2:4 w filledcu fs transparent solid 0.60 lc rgb "blue"       ti "t_0 =  7 Apr"
-replot "temp-band-data3.csv"  u 1:2:4 w filledcu fs transparent solid 0.60 lc rgb "slateblue1" ti "t_0 =  1 Apr"
-replot "temp-band-data4.csv"  u 1:2:4 w filledcu fs transparent solid 0.50 lc rgb "purple"     ti "t_0 = 26 Mar"
-replot "temp-band-data5.csv"  u 1:2:4 w filledcu fs transparent solid 0.50 lc rgb "coral"      ti "t_0 = 20 Mar"
-replot "temp-actual-data.csv" u 1:2 w lp lc rgb "black" lt 1 lw 2 pt 7 ti "Actual Data"
+
+
+numbk = 5
+array dlabels[numbk]
+
+do for [t=1:5] {
+  datafile = sprintf('temp-band-data%d.csv',t)
+  dlabels[t] =  system("head -2 " . datafile . " | tail -1 | cut -d, -f5")
+##  print dlabels[t]
+}
+
+array translist[numbk]
+ translist[1] = 1.00 
+ translist[2] = 0.60
+ translist[3] = 0.60
+ translist[4] = 0.50
+ translist[5] = 0.50
+
+array lclist[numbk]
+ lclist[1] = "dark-green"
+ lclist[2] = "blue"      
+ lclist[3] = "slateblue1"
+ lclist[4] = "purple"    
+ lclist[5] = "coral"     
+
+
 # assuming t0 gap of 6 days
-replot "<(sed -n  '1p' temp-actual-data.csv)" u 1:2 w point lt 1 lw 2 pt 7 ps 1.5 lc rgb "dark-green"    notitle
-replot "<(sed -n  '7p' temp-actual-data.csv)" u 1:2 w point lt 1 lw 2 pt 7 ps 1.5 lc rgb "blue"  notitle
-replot "<(sed -n '13p' temp-actual-data.csv)" u 1:2 w point lt 1 lw 2 pt 7 ps 1.5 lc rgb "slateblue1" notitle
-replot "<(sed -n '19p' temp-actual-data.csv)" u 1:2 w point lt 1 lw 2 pt 7 ps 1.5 lc rgb "purple" notitle
-replot "<(sed -n '25p' temp-actual-data.csv)" u 1:2 w point lt 1 lw 2 pt 7 ps 1.5 lc rgb "coral"   notitle
+array gaps[numbk]
+  gaps[1] = 1
+  gaps[2] = 7
+  gaps[3] = 13
+  gaps[4] = 18
+  gaps[5] = 25
+
+
+
+plot for [t=1:numbk]  "temp-band-data".t.".csv"  u 1:2:4 w filledcu fs transparent solid translist[t] lc rgb lclist[t] ti dlabels[t]
+replot "temp-actual-data.csv" u 1:2 w lp lc rgb "black" lt 1 lw 2 pt 7 ti "Actual Data"
+replot for [t=1:5] "<(sed -n  '".gaps[t]."p' temp-actual-data.csv)" u 1:2 w point lt 1 lw 2 pt 7 ps 3 lc rgb lclist[t]  notitle
+
+
 set output region."-".category.".png"
 replot
