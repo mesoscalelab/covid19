@@ -33,6 +33,9 @@ function init(data)
 
   let model = new Covid19ModelIndia(t0, statesSeries, caseSeries);
 
+  const cstat = model.countryStatLimit("deceased", new Date("2020-04-20"));
+  console.log(cstat);
+
   const stateName = "Karnataka";
   const state = model.indexStateName(stateName);
   const sstat = model.stateStat("deceased", state, model.lowParams, new Date("2020-04-20"), true);

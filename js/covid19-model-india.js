@@ -155,7 +155,7 @@ class Covid19Model
     for (let i = 0; i < this.numStates; i++) {
       sum += this.stateStat(category, i, params, dateString, extrapolation, false);
     }
-    return sum;
+    return Math.floor(sum);
   }
 
   countryTotal(allDistrictCounts)
