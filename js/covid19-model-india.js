@@ -274,19 +274,6 @@ class Covid19Model
     }
   }
 
-
-  interpolateAt(date, deceased0, g, t)
-  {
-    for (let i = 0; i < t.length; i++) {
-      let nextDay = new Date(t[i]);
-      nextDay.setDate(nextDay.getDate()+1);
-      if (date < nextDay) {
-        return g(deceased0)[i];
-      }
-    }
-    return g(deceased0)[t.length - 1];
-  }
-
   districtStatDataCollapse(category, districtIndex, params, date)
   {
     const stateName     = this.districtParams[districtIndex].state;
@@ -296,8 +283,10 @@ class Covid19Model
     const reported0     = Math.floor(this.districtNewsCount[districtIndex]);
     const carriers0     = Math.floor(this.districtAdjustedCount[districtIndex] * n);
     const deceased0     = Math.floor(this.stateParams[stateIndex].deceased);
-    const cgrowth       = this.interpolateAt(date, deceased0, params.cg, params.t);
-    const dgrowth       = this.interpolateAt(date, deceased0, params.dg, params.t);
+    const seconds       = Math.abs(date - this.t0) / 1000;
+    const days          = seconds / 86400.0;
+    const cgrowth       = Math.exp(params.beta(deceased0) * days);
+    const dgrowth       = Math.exp(params.beta(deceased0) * days);
     const m             = dgrowth * m0 / cgrowth;
     const carriers      = Math.floor(cgrowth * carriers0);
     const reported      = Math.floor(carriers / n);
@@ -495,32 +484,7 @@ class Covid19ModelIndia extends Covid19Model
       dates[i].setDate(dates[i].getDate() + i * 7);
     }
 
-  function beta(d)
-  {
-    if      (   0 <= d && d <  100) return { min : 0.14, max : 0.17 };
-    else if ( 100 <= d && d <  500) return { min : 0.20, max : 0.23 };
-    else if ( 500 <= d && d < 1000) return { min : 0.18, max : 0.20 };
-    else if (1000 <= d && d < 2000) return { min : 0.17, max : 0.18 };
-    else if (2000 <= d)             return { min : 0.15, max : 0.17 };
-  }
-
-  // carrier growth functions
-  function lowCarrierGrowth(deceased) {
-    let cg = new Array(5).fill(0);
-    for (let w = 0; w <= 4; w++) {
-      cg[w] = Math.exp(beta(deceased).min * 7 * w);
-    }
-    return cg;
-  }
-
-  function highCarrierGrowth(deceased) {
-    let cg = new Array(5).fill(0);
-    for (let w = 0; w <= 4; w++) {
-      cg[w] = Math.exp(beta(deceased).max * 7 * w);
-    }
-    return cg;
-  }
-
+  // death growth exp(alpha * t)
   function alpha(d)
   {
     if      (  0 <= d && d <  20) return { min : 0.17, max : 0.20 };
@@ -532,21 +496,14 @@ class Covid19ModelIndia extends Covid19Model
     else if (640 <= d)            return { min : 0.13, max : 0.15 };
   }
 
-  // death growth functions
-  function lowDeathGrowth(deceased) {
-    let dg = new Array(5).fill(0);
-    for (let w = 0; w <= 4; w++) {
-      dg[w] = Math.exp(alpha(deceased).min * 7 * w);
-    }
-    return dg;
-  }
-
-  function highDeathGrowth(deceased) {
-    let dg = new Array(5).fill(0);
-    for (let w = 0; w <= 4; w++) {
-      dg[w] = Math.exp(alpha(deceased).max * 7 * w);
-    }
-    return dg;
+  // carrier growth exp(beta * t)
+  function beta(d)
+  {
+    if      (   0 <= d && d <  100) return { min : 0.14, max : 0.17 };
+    else if ( 100 <= d && d <  500) return { min : 0.20, max : 0.23 };
+    else if ( 500 <= d && d < 1000) return { min : 0.18, max : 0.20 };
+    else if (1000 <= d && d < 2000) return { min : 0.17, max : 0.18 };
+    else if (2000 <= d)             return { min : 0.15, max : 0.17 };
   }
 
     let stateParams = binStateCountsTill(dates[0], stateTimeSeries);
@@ -559,8 +516,8 @@ class Covid19ModelIndia extends Covid19Model
           stateTimeSeries);
 
     this.dates      = dates;
-    this.lowParams  = { n : -1, m : -1, x : 10, y : 2, cg : lowCarrierGrowth,  dg : lowDeathGrowth, t : dates };
-    this.highParams = { n : -1, m : -1, x : 10, y : 2, cg : highCarrierGrowth, dg : highDeathGrowth, t : dates };
+    this.lowParams  = { n : -1, m : -1, x : 10, y : 2, alpha : (d) => alpha(d).min, beta : (d) => beta(d).min, t : dates };
+    this.highParams = { n : -1, m : -1, x : 10, y : 2, alpha : (d) => alpha(d).max, beta : (d) => beta(d).max, t : dates };
   }
 
   countryStatLimit(category, date)
