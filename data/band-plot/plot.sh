@@ -74,6 +74,8 @@ echo "Plotting $category statistics for $region since $sinceDate ..."
 node stat-bands.js "$sinceDate" "$category" "$level" "$stateName" "$districtName" > temp-all-data.csv
 awk '{print $0 > "temp-file" NR ".csv"}' RS='===' temp-all-data.csv
 awk 'NF' temp-file2.csv > temp-actual-data.csv
+awk 'NF' temp-file3.csv > temp-extrapolate-actual.csv
+awk 'NF' temp-file3.csv > temp-extrapolate-actual-summed.csv
 awk '{print $0 > "temp-band-data" NR ".csv"}' RS='###' temp-file1.csv
 gnuplot -c band-plot.gnu "$sinceDate" "$category" "$region" > /dev/null
 rm temp*.csv

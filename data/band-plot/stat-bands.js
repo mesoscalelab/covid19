@@ -1,5 +1,7 @@
-var { Covid19ModelIndia, binStateCountsTill } = require("../../js/covid19-model-india.js");
+var { Covid19ModelIndia, binStateCountsTill, expSlope } = require("../../js/covid19-model-india.js");
 var fetch = require("node-fetch");
+
+const offsetDays = 1;
 
 function daysSince(fromDate, date)
 {
@@ -9,7 +11,7 @@ function daysSince(fromDate, date)
 function countryProjectionBands(startDate, t0Gap, category, statesSeries, caseSeries)
 {
   let t0 = new Date();
-  t0.setDate(t0.getDate() - 1);
+  t0.setDate(t0.getDate() - offsetDays);
   while (startDate < t0) {
     let model = new Covid19ModelIndia(t0, statesSeries, caseSeries);
     for (let week = 1; week <= 4; week++) {
@@ -22,13 +24,12 @@ function countryProjectionBands(startDate, t0Gap, category, statesSeries, caseSe
     console.log("###")
     t0.setDate(t0.getDate() - t0Gap);
   }
-  console.log("===")
 }
 
 function countryActualTrend(startDate, category, statesSeries, caseSeries)
 {
   let t = new Date();
-  t.setDate(t.getDate() - 1);
+  t.setDate(t.getDate() - offsetDays);
   while (startDate < t) {
     const stateParams = binStateCountsTill(t, statesSeries);
     let actual_val = 0;
@@ -46,10 +47,43 @@ function countryActualTrend(startDate, category, statesSeries, caseSeries)
   }
 }
 
+function countryActualExtrapolate(startDate, category, statesSeries)
+{
+  let t = new Date();
+  t.setDate(t.getDate() - 7 - offsetDays + 1);
+  let data = [];
+  while (daysSince(startDate,t) <= daysSince(startDate,new Date()) - offsetDays) {
+    const stateParams = binStateCountsTill(t, statesSeries);
+    let actual_val = 0;
+    for (let state = 0; state < stateParams.length; state++) {
+      if (category == "reported") {
+        actual_val += stateParams[state].confirmed;
+      } else if (category == "deceased") {
+        actual_val += stateParams[state].deceased;
+      } else {
+        break;
+      }
+    }
+    data.push(actual_val);
+    t.setDate(t.getDate() + 1);
+  }
+  const c = expSlope(data);
+  const val0 = data[data.length-1];
+  let t0 = new Date();
+  t0.setDate(t0.getDate() - offsetDays);
+  const t0DaysSinceStart = daysSince(startDate, t0);
+  for (let daysSinceStart = 0; daysSinceStart < 70; daysSinceStart++) {
+    const daysSinceT0 = daysSinceStart - t0DaysSinceStart;
+    const extrap_val = val0 * Math.exp(c * daysSinceT0);
+    console.log(daysSinceStart + "," + extrap_val);
+  }
+  console.log(data);
+}
+
 function stateProjectionBands(startDate, t0Gap, category, stateName, statesSeries, caseSeries)
 {
   let t0 = new Date();
-  t0.setDate(t0.getDate() - 1);
+  t0.setDate(t0.getDate() - offsetDays);
   while (startDate < t0) {
     let model = new Covid19ModelIndia(t0, statesSeries, caseSeries);
     const state = model.indexStateName(stateName);
@@ -60,16 +94,14 @@ function stateProjectionBands(startDate, t0Gap, category, stateName, statesSerie
       tweek.setDate(tweek.getDate() + step);
       console.log(step + "," + stat.min + "," + stat.mid + "," + stat.max + "," + t0.toLocaleDateString("en-IN") + "," + tweek.toLocaleDateString("en-IN"));
     }
-    console.log("###")
     t0.setDate(t0.getDate() - t0Gap);
   }
-  console.log("===")
 }
 
 function stateActualTrend(startDate, category, stateName, statesSeries, caseSeries)
 {
   let t = new Date();
-  t.setDate(t.getDate() - 1);
+  t.setDate(t.getDate() - offsetDays);
   let model = new Covid19ModelIndia(new Date(), statesSeries, caseSeries);
   const state = model.indexStateName(stateName);
   while (startDate < t) {
@@ -87,10 +119,44 @@ function stateActualTrend(startDate, category, stateName, statesSeries, caseSeri
   }
 }
 
+function stateActualExtrapolate(startDate, category, stateName, statesSeries)
+{
+  let t = new Date();
+  t.setDate(t.getDate() - 7 - offsetDays + 1);
+  let data = [];
+  while (daysSince(startDate,t) <= daysSince(startDate,new Date())-offsetDays) {
+    const stateParams = binStateCountsTill(t, statesSeries);
+    let actual_val = 0;
+    for (let state = 0; state < stateParams.length; state++) {
+      if (stateParams[state].name !== stateName)
+        continue;
+      if (category == "reported") {
+        actual_val += stateParams[state].confirmed;
+      } else if (category == "deceased") {
+        actual_val += stateParams[state].deceased;
+      } else {
+        break;
+      }
+    }
+    data.push(actual_val);
+    t.setDate(t.getDate() + 1);
+  }
+  const c = expSlope(data);
+  const val0 = data[data.length-1];
+  let t0 = new Date();
+  t0.setDate(t0.getDate() - offsetDays);
+  const t0DaysSinceStart = daysSince(startDate, t0);
+  for (let daysSinceStart = 0; daysSinceStart < 70; daysSinceStart++) {
+    const daysSinceT0 = daysSinceStart - t0DaysSinceStart;
+    const extrap_val = val0 * Math.exp(c * daysSinceT0);
+    console.log(daysSinceStart + "," + extrap_val);
+  }
+}
+
 function districtProjectionBands(startDate, t0Gap, category, districtName, stateName, statesSeries, caseSeries)
 {
   let t0 = new Date();
-  t0.setDate(t0.getDate() - 1);
+  t0.setDate(t0.getDate() - offsetDays);
   while (startDate < t0) {
     let model = new Covid19ModelIndia(t0, statesSeries, caseSeries);
     const districtNameKey = model.districtNameKey(districtName, stateName);
@@ -105,13 +171,12 @@ function districtProjectionBands(startDate, t0Gap, category, districtName, state
     console.log("###")
     t0.setDate(t0.getDate() - t0Gap);
   }
-  console.log("===")
 }
 
 function districtActualTrend(startDate, category, districtName, stateName, statesSeries, caseSeries)
 {
   let t = new Date();
-  t.setDate(t.getDate() - 1);
+  t.setDate(t.getDate() - offsetDays);
   let model = new Covid19ModelIndia(new Date(), statesSeries, caseSeries);
   const districtNameKey = model.districtNameKey(districtName, stateName);
   const district = model.indexDistrictNameKey(districtNameKey);
@@ -120,6 +185,32 @@ function districtActualTrend(startDate, category, districtName, stateName, state
     const actual_val = actualDistrictCounts[district];
     console.log(daysSince(startDate, t) + "," + actual_val + "," + t.toLocaleDateString("en-IN"));
     t.setDate(t.getDate() - 1);
+  }
+}
+
+function districtActualExtrapolate(startDate, category, districtName, stateName, statesSeries, caseSeries)
+{
+  let t = new Date();
+  t.setDate(t.getDate() - 7 - offsetDays + 1);
+  let data = [];
+  let model = new Covid19ModelIndia(new Date(), statesSeries, caseSeries);
+  const districtNameKey = model.districtNameKey(districtName, stateName);
+  const district = model.indexDistrictNameKey(districtNameKey);
+  while (daysSince(startDate,t) <= daysSince(startDate,new Date())-offsetDays) {
+    const actualDistrictCounts = model.binCountsByDistrict(caseSeries, t);
+    const actual_val = actualDistrictCounts[district];
+    data.push(actual_val);
+    t.setDate(t.getDate() + 1);
+  }
+  const c = expSlope(data);
+  const val0 = data[data.length-1];
+  let t0 = new Date();
+  t0.setDate(t0.getDate() - offsetDays);
+  const t0DaysSinceStart = daysSince(startDate, t0);
+  for (let daysSinceStart = 0; daysSinceStart < 70; daysSinceStart++) {
+    const daysSinceT0 = daysSinceStart - t0DaysSinceStart;
+    const extrap_val = val0 * Math.exp(c * daysSinceT0);
+    console.log(daysSinceStart + "," + extrap_val);
   }
 }
 
@@ -154,15 +245,24 @@ function init(data)
   switch (level) {
     case "country":
       countryProjectionBands(startDate, t0Gap, category, statesSeries, caseSeries);
+      console.log("===");
       countryActualTrend(startDate, category, statesSeries, caseSeries);
+      console.log("===");
+      countryActualExtrapolate(startDate, category, statesSeries);
     break;
     case "state":
       stateProjectionBands(startDate, t0Gap, category, stateName, statesSeries, caseSeries);
+      console.log("===");
       stateActualTrend(startDate, category, stateName, statesSeries, caseSeries);
+      console.log("===");
+      stateActualExtrapolate(startDate, category, stateName, statesSeries, caseSeries);
     break;
     case "district":
       districtProjectionBands(startDate, t0Gap, category, districtName, stateName, statesSeries, caseSeries);
+      console.log("===");
       districtActualTrend(startDate, category, districtName, stateName, statesSeries, caseSeries);
+      console.log("===");
+      districtActualExtrapolate(startDate, category, districtName, stateName, statesSeries, caseSeries);
     break;
   }
 }

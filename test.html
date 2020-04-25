@@ -7,6 +7,7 @@
   <title>Test Functions</title>
 </head>
 <body>
+<div id="display"></div>
 <script src="js/covid19-model-india.js"></script>
 <script>
 let urls = [];
@@ -32,35 +33,26 @@ function init(data)
   t0.setDate(t0.getDate() - 1);
   console.log("t0 = " + t0);
 
-  let t = new Date("2020-04-28");
-  let category = "reported";
-  const stateName = "Maharashtra";
-  const districtName = "Mumbai";
-
   let model = new Covid19ModelIndia(t0, statesSeries, caseSeries);
 
-  const cstat = model.countryStatLimit(category, t);
+  const cstat = model.countryStatLimit("reported", t0);
   console.log(cstat);
 
-  const state = model.indexStateName(stateName);
-  const sstat = model.stateStatLimit(category, state, t);
-  console.log(sstat);
+  const stateParams = binStateCountsTill(new Date(), statesSeries);
+  let total = 0;
+  for (let i = 0; i < model.numStates; i++) {
+    total += stateParams[i].confirmed;
+  }
+  console.log(total);
 
-  const districtNameKey = model.districtNameKey(districtName, stateName);
-  const district = model.indexDistrictNameKey(districtNameKey);
-  const dstat = model.districtStatLimit(category, district, t);
-  console.log(dstat);
-
-  let day1 = new Date("2020-04-23");
-  let day2 = new Date("2020-04-29");
-  let day3 = new Date("2020-04-30");
-  let dcount1 = model.countryStatLimit("deceased", day1).mid;
-  let dcount2 = model.countryStatLimit("deceased", day2).mid;
-  let dcount3 = model.countryStatLimit("deceased", day3).mid;
-  console.log(dcount1);
-  console.log(dcount2 + " " + (dcount2-dcount1));
-  console.log(dcount3 + " " + (dcount3-dcount1));
-
+  let msg = "";
+  const state = model.indexStateName("Maharashtra");
+  const districts = model.listDistrictsOfState(state);
+  for (let i = 0; i < districts.length; i++) {
+    const district = districts[i];
+    msg += "./plot.sh \"district\" \"" + model.districtParams[district].name + "\" \"" + model.districtParams[district].state + "\" \"r\"</br>";
+  }
+  document.getElementById("display").innerHTML = msg;
 }
 </script>
 </body>

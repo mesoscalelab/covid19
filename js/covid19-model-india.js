@@ -205,7 +205,7 @@ class Covid19Model
     }
   }
 
-  districtStatExtrapolate(category, districtIndex, params, date, floored)
+  districtStatExtrapolate(category, districtIndex, params, date, floored = true)
   {
     if (date < this.t0) {
       let msg = "Cannot request stats for " + date + " which is earlier than t0 = " + this.t0;
@@ -220,7 +220,11 @@ class Covid19Model
     const reported0     = this.districtNewsCount[districtIndex];
     const deceased0     = reported0 * m0;
     const carriers0     = reported0 * n;
-    const seconds       = Math.abs(date - this.t0) / 1000;
+    const day           = date.getDate();
+    const month         = date.getMonth();
+    const year          = date.getFullYear();
+    const roundDate     = new Date(year, month, day);
+    const seconds       = Math.abs(roundDate - this.t0) / 1000;
     const days          = seconds / 86400.0;
     const facCDeceased  = this.stateDeceasedExtrapolFacC[stateIndex];
     const deceased      = deceased0 * Math.exp(facCDeceased * days);
@@ -240,40 +244,6 @@ class Covid19Model
     }
   }
 
-  districtStatExtrapolateNotUsed(category, districtIndex, params, date)
-  {
-    if (date < this.t0) {
-      let msg = "Cannot request stats for " + date + " which is earlier than t0 = " + this.t0;
-      throw RangeError(msg);
-    }
-    // f(t) = A * exp(c * t)
-    const stateName     = this.districtParams[districtIndex].state;
-    const stateIndex    = this.stateNameIndexMap.get(stateName);
-    const n             = (params.n > 0 ? params.n : this.stateParams[stateIndex].n);
-    const m0            = (params.m > 0 ? params.m : this.stateParams[stateIndex].m);
-    const reported0     = Math.floor(this.districtNewsCount[districtIndex]);
-    const carriers0     = Math.floor(this.districtAdjustedCount[districtIndex] * n);
-    const deceased0     = Math.floor(this.stateParams[stateIndex].deceased);
-    const cgrowth       = this.interpolateAt(date, deceased0, params.cg, params.t);
-    const dgrowth       = this.interpolateAt(date, deceased0, params.dg, params.t);
-    const m             = dgrowth * m0 / cgrowth;
-    const seconds       = Math.abs(date - this.t0) / 1000;
-    const days          = seconds / 86400.0;
-    const facA          = this.districtExtrapolFacA[districtIndex];
-    const facC          = this.districtExtrapolFacC[districtIndex];
-    const reported      = Math.floor(reported0 * Math.exp(facC * days));
-    const carriers      = Math.floor(reported * n);
-    const deceased      = Math.floor(reported * m);
-    const critical      = Math.floor(params.y * deceased);
-    switch (category) {
-      case "reported" : return (date === this.t0 ? reported0 : reported); break;
-      case "carriers" : return carriers; break;
-      case "critical" : return critical; break;
-      case "deceased" : return deceased; break;
-      default         : return this.itemStat(this.indexItemName(category), critical); break;
-    }
-  }
-
   districtStatDataCollapse(category, districtIndex, params, date)
   {
     const stateName     = this.districtParams[districtIndex].state;
@@ -283,7 +253,11 @@ class Covid19Model
     const reported0     = Math.floor(this.districtNewsCount[districtIndex]);
     const carriers0     = Math.floor(this.districtAdjustedCount[districtIndex] * n);
     const deceased0     = Math.floor(this.stateParams[stateIndex].deceased);
-    const seconds       = Math.abs(date - this.t0) / 1000;
+    const day           = date.getDate();
+    const month         = date.getMonth();
+    const year          = date.getFullYear();
+    const roundDate     = new Date(year, month, day);
+    const seconds       = Math.abs(roundDate - this.t0) / 1000;
     const days          = seconds / 86400.0;
     const cgrowth       = Math.exp(params.beta(deceased0) * days);
     const dgrowth       = Math.exp(params.beta(deceased0) * days);
@@ -299,7 +273,7 @@ class Covid19Model
     //  = (dgrowth * state_deceased0) / (cgrowth * state_reported0)
     //  = dgrowth * m0 / cgrowth
     switch (category) {
-      case "reported" : return (date === this.t0 ? reported0 : reported); break;
+      case "reported" : return (days == 0 ? reported0 : reported); break;
       case "carriers" : return carriers; break;
       case "critical" : return critical; break;
       case "deceased" : return deceased; break;
@@ -430,6 +404,7 @@ class Covid19Model
     return districtsOfState;
   }
 
+  // cumulative counts till end of tillDate
   binCountsByDistrict(patients, tillDate)
   {
     let districtCount = new Array(this.numDistricts).fill(0);
@@ -573,6 +548,7 @@ function deathsPerConfirmed(confirmed, deceased)
     return deceased / confirmed;
 }
 
+// cumulative cases till end of date
 function binStateCountsTill(date, data)
 {
   let stateAbbrvs = Object.keys(data[0]);
@@ -1476,5 +1452,5 @@ const districtParamsForIndia = [
 ];
 
 if (typeof module !== "undefined") {
-  module.exports = { Covid19ModelIndia, binStateCountsTill };
+  module.exports = { Covid19ModelIndia, binStateCountsTill, expSlope };
 }

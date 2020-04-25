@@ -7,7 +7,7 @@ set terminal pngcairo size 640,640 enhanced font 'Verdana,10'
 set title "Adaptive Projections of ".category." count for ".region."\n made at the dates shown"
 set xlabel "Days since ".sincedate
 set ylabel "Projection for ".category." count"
-set xrange[0:50]
+set xrange[0:70]
 set yrange[1:1e6]
 set key top left
 set key reverse
@@ -54,6 +54,8 @@ array gaps[numbk]
 plot for [t=1:numbk]  "temp-band-data".t.".csv"  u 1:2:4 w filledcu fs transparent solid translist[t] lc rgb lclist[t] ti dlabels[t]
 replot "temp-actual-data.csv" u 1:2 w lp lc rgb "black" lt 1 lw 2 pt 7 ti "Actual Data"
 replot for [t=1:5] "<(sed -n  '".gaps[t]."p' temp-actual-data.csv)" u 1:2 w point lt 1 lw 2 pt 7 ps 3 lc rgb lclist[t]  notitle
+#replot "temp-extrapolate-actual.csv" u 1:2 w lp lc rgb "red" lt 1 lw 2 pt 2 ti "Fit"
+#replot "temp-extrapolate-actual-summed.csv" u 1:2 w lp lc rgb "green" lt 1 lw 2 pt 2 ti "Fit"
 
 
 set output region."-".category.".png"
