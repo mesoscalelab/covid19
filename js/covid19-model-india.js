@@ -462,6 +462,11 @@ class Covid19ModelIndia extends Covid19Model
   // death growth exp(alpha * t)
   function alpha(d)
   {
+    return { min : 0.042, max : 0.125 };
+  }
+
+  function alphaOld(d)
+  {
     if      (  0 <= d && d <  20) return { min : 0.17, max : 0.20 };
     else if ( 20 <= d && d <  40) return { min : 0.15, max : 0.18 };
     else if ( 40 <= d && d <  80) return { min : 0.13, max : 0.16 };
@@ -473,6 +478,11 @@ class Covid19ModelIndia extends Covid19Model
 
   // carrier growth exp(beta * t)
   function beta(d)
+  {
+    return { min : 0.042, max : 0.125 };
+  }
+
+  function betaOld(d)
   {
     if      (   0 <= d && d <  100) return { min : 0.14, max : 0.17 };
     else if ( 100 <= d && d <  500) return { min : 0.20, max : 0.23 };
@@ -1448,14 +1458,14 @@ const districtParamsForIndia = [
 { "id" : 761, "name" : "Unclassified", "state" : "Tripura"},
 { "id" : 762, "name" : "Unclassified", "state" : "Uttar Pradesh"},
 { "id" : 763, "name" : "Unclassified", "state" : "Uttarakhand"},
-{ "id" : 764, "name" : "Unclassified", "state" : "West Bengal"}
+{ "id" : 764, "name" : "Unclassified", "state" : "West Bengal"},
 { "id" : 765, "name" : "Hnahthial", "state" : "Mizoram"},
 { "id" : 766, "name" : "Khawzawl", "state" : "Mizoram"},
 { "id" : 768, "name" : "Chengalpattu", "state" : "Tamil Nadu"},
 { "id" : 769, "name" : "Kallakurichi", "state" : "Tamil Nadu"},
 { "id" : 770, "name" : "Ranipet", "state" : "Tamil Nadu"},
 { "id" : 771, "name" : "Tenkasi", "state" : "Tamil Nadu"},
-{ "id" : 772, "name" : "Tirupathur", "state" : "Tamil Nadu"},
+{ "id" : 772, "name" : "Tirupathur", "state" : "Tamil Nadu"}
 ];
 
 if (typeof module !== "undefined") {
