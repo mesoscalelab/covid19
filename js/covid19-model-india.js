@@ -867,7 +867,7 @@ const districtParamsForIndia = [
 { "id" : 164, "name" : "Botad", "state" : "Gujarat"},
 { "id" : 165, "name" : "Chota Udaipur", "state" : "Gujarat"},
 { "id" : 166, "name" : "Devbhumi Dwarka", "state" : "Gujarat"},
-{ "id" : 167, "name" : "Dahod", "state" : "Gujarat"},
+{ "id" : 167, "name" : "Dohad", "state" : "Gujarat"},
 { "id" : 168, "name" : "Gandhinagar", "state" : "Gujarat"},
 { "id" : 169, "name" : "Gir Somnath", "state" : "Gujarat"},
 { "id" : 170, "name" : "Jamnagar", "state" : "Gujarat"},
