@@ -1449,6 +1449,13 @@ const districtParamsForIndia = [
 { "id" : 762, "name" : "Unclassified", "state" : "Uttar Pradesh"},
 { "id" : 763, "name" : "Unclassified", "state" : "Uttarakhand"},
 { "id" : 764, "name" : "Unclassified", "state" : "West Bengal"}
+{ "id" : 765, "name" : "Hnahthial", "state" : "Mizoram"},
+{ "id" : 766, "name" : "Khawzawl", "state" : "Mizoram"},
+{ "id" : 768, "name" : "Chengalpattu", "state" : "Tamil Nadu"},
+{ "id" : 769, "name" : "Kallakurichi", "state" : "Tamil Nadu"},
+{ "id" : 770, "name" : "Ranipet", "state" : "Tamil Nadu"},
+{ "id" : 771, "name" : "Tenkasi", "state" : "Tamil Nadu"},
+{ "id" : 772, "name" : "Tirupathur", "state" : "Tamil Nadu"},
 ];
 
 if (typeof module !== "undefined") {
