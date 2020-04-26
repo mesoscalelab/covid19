@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sinceDate="12 April 2020"
+sinceDate="1 April 2020"
 level=$1
 stateName="none"
 districtName="none"

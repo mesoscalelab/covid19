@@ -7,7 +7,7 @@ set terminal pngcairo size 640,640 enhanced font 'Verdana,10'
 set title "Adaptive Projections of ".category." count for ".region."\n made at the dates shown"
 set xlabel "Days since ".sincedate
 set ylabel "Projection for ".category." count"
-set xrange[0:70]
+set xrange[0:52]
 set yrange[1:1e6]
 set key top left
 set key reverse

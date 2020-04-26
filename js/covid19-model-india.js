@@ -511,6 +511,8 @@ class Covid19ModelIndia extends Covid19Model
     values[0] = this.countryStat(category, this.lowParams, date);
     values[1] = this.countryStat(category, this.highParams, date);
     values[2] = this.countryStat(category, this.lowParams, date, true);
+    if (values[2] > values[1])
+      values[2] = values[1];
     values.sort(function(a, b) {return a - b});
     return { min : values[0], mid : values[1], max : values[2] };
   }
@@ -521,6 +523,8 @@ class Covid19ModelIndia extends Covid19Model
     values[0] = this.stateStat(category, stateIndex, this.lowParams, date);
     values[1] = this.stateStat(category, stateIndex, this.highParams, date);
     values[2] = this.stateStat(category, stateIndex, this.lowParams, date, true);
+    if (values[2] > values[1])
+      values[2] = values[1];
     values.sort(function(a, b) {return a - b});
     return { min : values[0], mid : values[1], max : values[2] };
   }
@@ -531,6 +535,8 @@ class Covid19ModelIndia extends Covid19Model
     values[0] = this.districtStat(category, districtIndex, this.lowParams, date);
     values[1] = this.districtStat(category, districtIndex, this.highParams, date);
     values[2] = this.districtStat(category, districtIndex, this.lowParams, date, true);
+    if (values[2] > values[1])
+      values[2] = values[1];
     values.sort(function(a, b) {return a - b});
     return { min : values[0], mid : values[1], max : values[2] };
   }

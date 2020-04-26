@@ -77,7 +77,6 @@ function countryActualExtrapolate(startDate, category, statesSeries)
     const extrap_val = val0 * Math.exp(c * daysSinceT0);
     console.log(daysSinceStart + "," + extrap_val);
   }
-  console.log(data);
 }
 
 function stateProjectionBands(startDate, t0Gap, category, stateName, statesSeries, caseSeries)
@@ -94,6 +93,7 @@ function stateProjectionBands(startDate, t0Gap, category, stateName, statesSerie
       tweek.setDate(tweek.getDate() + step);
       console.log(step + "," + stat.min + "," + stat.mid + "," + stat.max + "," + t0.toLocaleDateString("en-IN") + "," + tweek.toLocaleDateString("en-IN"));
     }
+    console.log("###")
     t0.setDate(t0.getDate() - t0Gap);
   }
 }
