@@ -25,20 +25,30 @@ then
   category=$4
 fi
 
-if [ "$category" == "r" ] || [ "$category" == "reported" ]
+if [ "$category" == "r" ]
 then
   category="reported"
-elif [ "$category" == "d" ] || [ "$category" == "deceased" ]
+elif [ "$category" == "reported" ]
+then
+  category="reported"
+elif [ "$category" == "d" ]
 then
   category="deceased"
+elif [ "$category" == "deceased" ]
+then
+  category="deceased"
+else
+  echo "Please provide a valid category ..."
+  exit 1
+fi
+
+if [ "$category" == "deceased" ]
+then
   if [ "$level" == "district" ]
   then
     echo "Cannot show actual deceased trend for districts..."
     exit 1
   fi
-else
-  echo "Please provide a valid category ..."
-  exit 1
 fi
 
 if [ "$level" == "country" ]
@@ -69,13 +79,27 @@ then
   region="$districtName, $stateName"
 fi
 
+region=$(echo $region|sed 's/ //g' |sed 's/,/-/g')
+
+
 echo "Plotting $category statistics for $region since $sinceDate ..."
 
 node stat-bands.js "$sinceDate" "$category" "$level" "$stateName" "$districtName" > temp-all-data.csv
-awk '{print $0 > "temp-file" NR ".csv"}' RS='===' temp-all-data.csv
-awk 'NF' temp-file2.csv > temp-actual-data.csv
-awk 'NF' temp-file3.csv > temp-extrapolate-actual.csv
-awk 'NF' temp-file3.csv > temp-extrapolate-actual-summed.csv
-awk '{print $0 > "temp-band-data" NR ".csv"}' RS='###' temp-file1.csv
+awk '{print $0 > "temp-file" NR ".csv"}' RS='===' temp-all-data.csv # partition rows separated by === in to diff files
+awk 'NF' temp-file2.csv > temp-actual-data.csv # remove blank lines
+awk '{print $0 > "temp-band-data" NR ".csv"}' RS='###' temp-file1.csv # partition rows separated by ### in diff files
+
 gnuplot -c band-plot.gnu "$sinceDate" "$category" "$region" > /dev/null
+
+
+#regdatafile=$(echo $region-$category.csv |sed 's/ //g' | sed 's/,/-/g')
+regdatafile=$region-$category.csv
+
+echo "# " $region, $category > "$regdatafile"
+#cat temp-all-data.csv >> "$regdatafile"
+awk '{print}' RS='###' temp-all-data.csv  >> "$regdatafile"
 rm temp*.csv
+
+# get daily stats
+#echo node stat-daily.js "$sinceDate" "$category" "$level" "$stateName" "$districtName" > $level-$category-daily.csv
+
