@@ -512,7 +512,7 @@ class Covid19ModelIndia extends Covid19Model
     let extrap = this.countryStat(category, this.lowParams, date, true);
     const min = Math.min(modelL, extrap);
     const max = modelH;
-    const mid = Math.sqrt(min * max);
+    const mid = Math.floor(Math.sqrt(min * max));
     return { min : min, mid : mid, max : max };
   }
 
@@ -523,7 +523,7 @@ class Covid19ModelIndia extends Covid19Model
     let extrap = this.stateStat(category, stateIndex, this.lowParams, date, true);
     const min = Math.min(modelL, extrap);
     const max = modelH;
-    const mid = Math.sqrt(min * max);
+    const mid = Math.floor(Math.sqrt(min * max));
     return { min : min, mid : mid, max : max };
   }
 
@@ -534,7 +534,7 @@ class Covid19ModelIndia extends Covid19Model
     let extrap = this.districtStat(category, districtIndex, this.lowParams, date, true);
     const min = Math.min(modelL, extrap);
     const max = modelH;
-    const mid = Math.sqrt(min * max);
+    const mid = Math.floor(Math.sqrt(min * max));
     return { min : min, mid : mid, max : max };
   }
 }
