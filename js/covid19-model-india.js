@@ -507,38 +507,35 @@ class Covid19ModelIndia extends Covid19Model
 
   countryStatLimit(category, date)
   {
-    let values = new Array(3).fill(0);
-    values[0] = this.countryStat(category, this.lowParams, date);
-    values[1] = this.countryStat(category, this.highParams, date);
-    values[2] = this.countryStat(category, this.lowParams, date, true);
-    if (values[2] > values[1])
-      values[2] = values[1];
-    values.sort(function(a, b) {return a - b});
-    return { min : values[0], mid : values[1], max : values[2] };
+    let modelL = this.countryStat(category, this.lowParams, date);
+    let modelH = this.countryStat(category, this.highParams, date);
+    let extrap = this.countryStat(category, this.lowParams, date, true);
+    const min = Math.min(modelL, extrap);
+    const max = modelH;
+    const mid = Math.sqrt(min * max);
+    return { min : min, mid : mid, max : max };
   }
 
   stateStatLimit(category, stateIndex, date)
   {
-    let values = new Array(3).fill(0);
-    values[0] = this.stateStat(category, stateIndex, this.lowParams, date);
-    values[1] = this.stateStat(category, stateIndex, this.highParams, date);
-    values[2] = this.stateStat(category, stateIndex, this.lowParams, date, true);
-    if (values[2] > values[1])
-      values[2] = values[1];
-    values.sort(function(a, b) {return a - b});
-    return { min : values[0], mid : values[1], max : values[2] };
+    let modelL = this.stateStat(category, stateIndex, this.lowParams, date);
+    let modelH = this.stateStat(category, stateIndex, this.highParams, date);
+    let extrap = this.stateStat(category, stateIndex, this.lowParams, date, true);
+    const min = Math.min(modelL, extrap);
+    const max = modelH;
+    const mid = Math.sqrt(min * max);
+    return { min : min, mid : mid, max : max };
   }
 
   districtStatLimit(category, districtIndex, date, limit)
   {
-    let values = new Array(3).fill(0);
-    values[0] = this.districtStat(category, districtIndex, this.lowParams, date);
-    values[1] = this.districtStat(category, districtIndex, this.highParams, date);
-    values[2] = this.districtStat(category, districtIndex, this.lowParams, date, true);
-    if (values[2] > values[1])
-      values[2] = values[1];
-    values.sort(function(a, b) {return a - b});
-    return { min : values[0], mid : values[1], max : values[2] };
+    let modelL = this.districtStat(category, districtIndex, this.lowParams, date);
+    let modelH = this.districtStat(category, districtIndex, this.highParams, date);
+    let extrap = this.districtStat(category, districtIndex, this.lowParams, date, true);
+    const min = Math.min(modelL, extrap);
+    const max = modelH;
+    const mid = Math.sqrt(min * max);
+    return { min : min, mid : mid, max : max };
   }
 }
 
