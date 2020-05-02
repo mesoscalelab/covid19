@@ -33,6 +33,13 @@ function init(data)
   let caseSeries3  = data[3].raw_data;
   let caseSeries   = caseSeries1.concat(caseSeries2, caseSeries3);
 
+  const new_names = apiNewDistricts(caseSeries);
+  msg = "";
+  for (let i = 0; i < new_names.length; i++) {
+    msg += new_names[i] + "</br>";
+  }
+  document.getElementById("display").innerHTML = msg;
+
   let t0 = new Date();
   t0.setDate(t0.getDate() - 1);
 
