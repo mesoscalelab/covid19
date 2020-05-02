@@ -58,7 +58,7 @@ function init(data)
 Projected statistics for a specific district can be obtained from the model
 using
 ```js
-const districtIndex = model.indexDistrictNameKey("Bengaluru.Karnataka");
+const districtIndex = model.indexDistrictNameKey("Bengaluru Urban.Karnataka");
 const stat = model.districtStatLimit("reported", districtIndex, new Date("10 April 2020"));
 ```
 The above `districtStatLimit` function returns an object containing three
@@ -83,7 +83,7 @@ In addition, the model provides a time-series extrapolation method to generate
 projections. The functions for obtaining these low, high and extrapolation case
 projections are:
 ```js
-const districtIndex = model.indexDistrictNameKey("Bengaluru.Karnataka");
+const districtIndex = model.indexDistrictNameKey("Bengaluru Urban.Karnataka");
 const lowStat = model.districtStat("reported", districtIndex, model.lowParams, new Date("10 April 2020"));
 const highStat = model.districtStat("reported", districtIndex, model.highParams, new Date("10 April 2020"));
 const extrapolStat = model.districtStat("reported", districtIndex, model.lowParams, new Date("10 April 2020"), true);
@@ -99,7 +99,7 @@ date (`t=0`), `model.dates[1]` represents a week after `t=0` and so on.
 For example, to obtain the projected number of critically ill patients
 for the second week in a district, the following query needs to be made:
 ```js
-var districtIndex = model.indexDistrictNameKey("Bengaluru.Karnataka");
+var districtIndex = model.indexDistrictNameKey("Bengaluru Urban.Karnataka");
 var numCritical = model.districtStat("critical", districtIndex, model.lowParams, model.dates[2]);
 ```
 
@@ -128,4 +128,4 @@ launching the script JS script using node as follows:
 4. `./plot.sh <arg1> <arg2> ...` for generating plots for a specific region
   + `./plot.sh "country" "reported"` for India plots
   + `./plot.sh "state" "Karnataka" "reported"` for states
-  + `./plot.sh "district" "Bengaluru" "Karnataka" "reported"` for districts
+  + `./plot.sh "district" "Bengaluru Urban" "Karnataka" "reported"` for districts
