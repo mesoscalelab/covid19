@@ -409,22 +409,36 @@ class Covid19Model
   {
     let districtCount = new Array(this.numDistricts).fill(0);
     for (let i = 0; i < patients.length; i++) {
+
+      // ignore entries beyond tillDate
       const date = this.dateParser(patients[i].dateannounced, this.patientDateFormat);
       if (date > tillDate)
         continue;
+
+      // ignore entry if no state is given
       const stateName = patients[i].detectedstate;
       if (stateName === "")
         continue;
+
+      // bin entry to unclassified district if no district is given
       let districtName = patients[i].detecteddistrict;
       if (districtName === "")
         districtName = "Unclassified";
 
-      let key = this.districtNameKey(districtName, stateName);
-      if (!this.districtNameKeyIndexMap.has(key)) {
+      // bin entry to unclassified district if district is not listed in districtParamsForIndia
+      const findKey = this.districtNameKey(districtName, stateName);
+      if (!this.districtNameKeyIndexMap.has(findKey)) {
         districtName = "Unclassified"
       }
-      key = this.districtNameKey(districtName, stateName);
-      districtCount[this.districtNameKeyIndexMap.get(key)]++;
+
+      const key = this.districtNameKey(districtName, stateName);
+      const district = this.districtNameKeyIndexMap.get(key);
+
+      if (patients[i].hasOwnProperty("numcases")) {
+        districtCount[district] += +patients[i].numcases;
+      } else {
+        districtCount[district] += 1;
+      }
     }
     return districtCount;
   }

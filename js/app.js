@@ -10,7 +10,9 @@ $(function()
 {
   let urls = [];
   urls.push("https://api.covid19india.org/states_daily.json");
-  urls.push("https://api.covid19india.org/raw_data.json");
+  urls.push("https://api.covid19india.org/raw_data1.json");
+  urls.push("https://api.covid19india.org/raw_data2.json");
+  urls.push("https://api.covid19india.org/raw_data3.json");
 
   let promises = [];
   urls.forEach(function(url) {
@@ -28,7 +30,14 @@ function init(data)
   t0.setDate(t0.getDate() - 1);
 
   let statesSeries = data[0].states_daily;
-  let caseSeries   = data[1].raw_data;
+  let caseSeries1  = data[1].raw_data;
+  let caseSeries2  = data[2].raw_data;
+  let caseSeries3  = data[3].raw_data;
+  let caseSeries   = caseSeries1.concat(caseSeries2, caseSeries3);
+  console.log(caseSeries1.length);
+  console.log(caseSeries2.length);
+  console.log(caseSeries3.length);
+  console.log(caseSeries.length);
   let model        = new Covid19ModelIndia(t0, statesSeries, caseSeries);
   let appConfig    = new AppConfig();
 

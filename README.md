@@ -13,7 +13,9 @@ JSON data as follows:
 ```js
   let urls = [];
   urls.push("https://api.covid19india.org/states_daily.json");
-  urls.push("https://api.covid19india.org/raw_data.json");
+  urls.push("https://api.covid19india.org/raw_data1.json");
+  urls.push("https://api.covid19india.org/raw_data2.json");
+  urls.push("https://api.covid19india.org/raw_data3.json");
 
   let promises = [];
   urls.forEach(function(url) {
@@ -32,7 +34,7 @@ all the data has been fetched as shown above.
 In order to create an instance of the model, we need to supply:
 + `t0` : baseline date, usually taken as three to seven days before the current date
 + `stateSeries` : an array containing daily state-wise statistics as obtained from `states_daily.json`
-+ `caseSeries` : an array containing time-series of reported cases as obtained from `raw_data.json`
++ `caseSeries` : an array containing time-series of reported cases as obtained from concatenation of all `raw_data<n>.json`
 
 ```js
 function init(data)
@@ -41,7 +43,10 @@ function init(data)
   t0.setDate(t0.getDate() - 3);
 
   let statesSeries = data[0].states_daily;
-  let caseSeries   = data[1].raw_data;
+  let caseSeries1  = data[1].raw_data;
+  let caseSeries2  = data[2].raw_data;
+  let caseSeries3  = data[3].raw_data;
+  let caseSeries   = caseSeries1.concat(caseSeries2, caseSeries3);
   let model        = new Covid19ModelIndia(t0, statesSeries, caseSeries);
   
   // all functions using model data are nested inside this
