@@ -216,7 +216,9 @@ function districtActualExtrapolate(startDate, category, districtName, stateName,
 
 let urls = [];
 urls.push("https://api.covid19india.org/states_daily.json");
-urls.push("https://api.covid19india.org/raw_data.json");
+urls.push("https://api.covid19india.org/raw_data1.json");
+urls.push("https://api.covid19india.org/raw_data2.json");
+urls.push("https://api.covid19india.org/raw_data3.json");
 
 let promises = [];
 urls.forEach(function(url) {
@@ -237,10 +239,13 @@ function init(data)
   const stateName     = (args.length > 3 ? args[3] : "none");
   const districtName  = (args.length > 4 ? args[4] : "none");
 
-  let statesSeries    = data[0].states_daily;
-  let caseSeries      = data[1].raw_data;  
-  const startDate     = new Date(dateString);
-  const t0Gap         = 6;
+  let statesSeries = data[0].states_daily;
+  let caseSeries1  = data[1].raw_data;
+  let caseSeries2  = data[2].raw_data;
+  let caseSeries3  = data[3].raw_data;
+  let caseSeries   = caseSeries1.concat(caseSeries2, caseSeries3);
+  const startDate  = new Date(dateString);
+  const t0Gap      = 6;
 
   switch (level) {
     case "country":
