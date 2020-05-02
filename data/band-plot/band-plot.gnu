@@ -38,8 +38,8 @@ array translist[numbk]
 
 array lclist[numbk]
  lclist[1] = "dark-green"
- lclist[2] = "royalblue"      
- lclist[3] = "yellow"
+ lclist[2] = "yellow"      
+ lclist[3] = "light-blue"
  lclist[4] = "purple"    
  lclist[5] = "red"     
 
