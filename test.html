@@ -35,28 +35,17 @@ function init(data)
 
   let t0 = new Date();
   t0.setDate(t0.getDate() - 1);
-  console.log("t0 = " + t0);
 
   let model = new Covid19ModelIndia(t0, statesSeries, caseSeries);
 
-  const cstat = model.countryStatLimit("reported", t0);
-  console.log(cstat);
-
-  const stateParams = binStateCountsTill(new Date(), statesSeries);
-  let total = 0;
-  for (let i = 0; i < model.numStates; i++) {
-    total += stateParams[i].confirmed;
-  }
-  console.log(total);
-
-  let msg = "";
-  const state = model.indexStateName("Maharashtra");
+  const state = model.indexStateName("Jharkhand");
+  const districtWise = model.binCountsByDistrict(caseSeries, new Date("1 May 2020"));
   const districts = model.listDistrictsOfState(state);
+  let total = 0;
   for (let i = 0; i < districts.length; i++) {
-    const district = districts[i];
-    msg += "./plot.sh \"district\" \"" + model.districtParams[district].name + "\" \"" + model.districtParams[district].state + "\" \"r\"</br>";
+    total += districtWise[districts[i]];
   }
-  document.getElementById("display").innerHTML = msg;
+  console.log("reported = " + total);
 }
 </script>
 </body>

@@ -34,12 +34,9 @@ function init(data)
   let caseSeries2  = data[2].raw_data;
   let caseSeries3  = data[3].raw_data;
   let caseSeries   = caseSeries1.concat(caseSeries2, caseSeries3);
-  console.log(caseSeries1.length);
-  console.log(caseSeries2.length);
-  console.log(caseSeries3.length);
-  console.log(caseSeries.length);
   let model        = new Covid19ModelIndia(t0, statesSeries, caseSeries);
   let appConfig    = new AppConfig();
+
 
   setCategory(appConfig, "reported");
   setAllStats(model, appConfig);

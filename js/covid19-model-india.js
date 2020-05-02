@@ -246,6 +246,10 @@ class Covid19Model
 
   districtStatDataCollapse(category, districtIndex, params, date)
   {
+    if (date < this.t0) {
+      let msg = "Cannot request stats for " + date + " which is earlier than t0 = " + this.t0;
+      throw RangeError(msg);
+    }
     const stateName     = this.districtParams[districtIndex].state;
     const stateIndex    = this.stateNameIndexMap.get(stateName);
     const n             = (params.n > 0 ? params.n : this.stateParams[stateIndex].n);
@@ -435,8 +439,12 @@ class Covid19Model
       const district = this.districtNameKeyIndexMap.get(key);
 
       if (patients[i].hasOwnProperty("numcases")) {
-        districtCount[district] += +patients[i].numcases;
+        // raw_data3.json
+        if (patients[i].currentstatus == "Hospitalized") {
+          districtCount[district] += +patients[i].numcases;
+        }
       } else {
+        // raw_data1.json, raw_data2.json
         districtCount[district] += 1;
       }
     }
