@@ -16,6 +16,7 @@ JSON data as follows:
   urls.push("https://api.covid19india.org/raw_data1.json");
   urls.push("https://api.covid19india.org/raw_data2.json");
   urls.push("https://api.covid19india.org/raw_data3.json");
+  urls.push("https://api.covid19india.org/raw_data4.json");
 
   let promises = [];
   urls.forEach(function(url) {
