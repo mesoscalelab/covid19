@@ -14,6 +14,7 @@ $(function()
   urls.push("https://api.covid19india.org/raw_data2.json");
   urls.push("https://api.covid19india.org/raw_data3.json");
   urls.push("https://api.covid19india.org/raw_data4.json");
+  urls.push("https://api.covid19india.org/raw_data5.json");
 
   let promises = [];
   urls.forEach(function(url) {
