@@ -1,6 +1,8 @@
 # covid19
 COVID-19 Model Projections for India
 
+*Update*: This project has been superseded by the [DST India Covid Model](https://gitlab.com/jncasr.covid/dst-india-super-model)
+
 ## Include
 Download the JS script `covid19-model-india.js` and include it locally.
 ```html
